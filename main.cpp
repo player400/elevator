@@ -280,7 +280,7 @@ struct ElevatorData
 
 };
 
- ElevatorData windy[1];
+ ElevatorData windy[2];
 
 //void setCursor(int x, int y)
 //{
@@ -348,8 +348,8 @@ void sterowanie()
             int w;
             cin>>w;
 
-            int liczba_polecen[1];
-            for(int i=0;i<1;i++)
+            int liczba_polecen[2];
+            for(int i=0;i<2;i++)
             {
                 liczba_polecen[i]=windy[i].polecenia.size();
             }
@@ -362,7 +362,7 @@ void sterowanie()
                 int jedzie=0;
 
 //PRZY DODAWANIU WIND KONIECZNA ZMIANA WARUNKU PĘTLI ORAZ UZALEŻNIENIA ZMIENNYCH OD ITOERATORA PĘTLI (NP. przystanki[j].elevator[i]==w)
-                for(int i=0;i<1;i++)
+                for(int i=0;i<2;i++)
                 {
 
                     if(contains(windy[i].przystanki,w))
@@ -386,17 +386,18 @@ void sterowanie()
 
                 if(jedzie==1)
                 {
+                    freezerdata=false;
                     continue;
                 }
                 else
                 {
 
-                    int distance[1];
-                    int znalezionoprzystanek[1];
+                    int distance[2];
+                    int znalezionoprzystanek[2];
 
 //KOLEJNA PĘTLA DO ZMIANY, NALEŻY ZMIENIĆ RÓWNIEŻ TABLICE distance ORAZ znalezionoprzystanek PRZY WIELU WINDACH TRZEBA BĘDZIE DODAĆ INDEXY DO WSZYSTKICH ZMIENNYCH
 //PĘTLA MUSI ITEROWAĆ SIĘ TYLE RAZY ILE JEST WIND
-                    for(int i=0;i<1;i++)
+                    for(int i=0;i<2;i++)
                     {
                         znalezionoprzystanek[i]=0;
                         distance[i]=0;
@@ -407,32 +408,32 @@ void sterowanie()
                         }
 
 //PRIORYTET WINDY - JAZDA W GÓRĘ
-                    if(direction=='u')
-                    {
-                        if(liczba_polecen[i]==1)
+                        if(direction=='u')
                         {
-                            if((windy[i].polecenia[0]>w)&&(windy[i].last_floor_number<w))
+                            if(liczba_polecen[i]==1)
                             {
-                                znalezionoprzystanek[i]=1;
-                                distance[i]=abs(w-windy[i].last_floor_number);
-                            }
-                        }
-
-
-                        for(int j=0;j<(liczba_polecen[i]-1);j++)
-                        {
-                            if((windy[i].polecenia[j]<w)&&(windy[i].polecenia[j+1]>w))
-                            {
-                                distance[i]=distance[i]+abs(windy[i].polecenia[j]-w);
-                                znalezionoprzystanek[i]=1;
-                                break;
-                            }
-                            else
-                            {
-                                distance[i]=distance[i]+abs(windy[i].polecenia[j]-windy[i].polecenia[j+1]);
+                                if((windy[i].polecenia[0]>w)&&(windy[i].last_floor_number<w))
+                                {
+                                    znalezionoprzystanek[i]=1;
+                                    distance[i]=abs(w-windy[i].last_floor_number);
+                                }
                             }
 
-                        }
+
+                            for(int j=0;j<(liczba_polecen[i]-1);j++)
+                            {
+                                if((windy[i].polecenia[j]<w)&&(windy[i].polecenia[j+1]>w))
+                                {
+                                    distance[i]=distance[i]+abs(windy[i].polecenia[j]-w);
+                                    znalezionoprzystanek[i]=1;
+                                    break;
+                                }
+                                else
+                                {
+                                    distance[i]=distance[i]+abs(windy[i].polecenia[j]-windy[i].polecenia[j+1]);
+                                }
+
+                            }
 
                             if(znalezionoprzystanek[i]==0)
                             {
@@ -476,19 +477,29 @@ void sterowanie()
                         }
                     }
 
+                    int numer_optymalnej_windy=0;
+                    for(int i=0; i<2; i++)
+                    {
+                        if(distance[numer_optymalnej_windy]>distance[i])
+                        {
+                            numer_optymalnej_windy=i;
+                        }
+                    }
 //TUTAJ MUSI BYĆ WYSZUKIWANIE NAJMNIEJSZEGO ELEMENTU Z TABLICY distance W CELU OPTYMALIZACJI TRASY !!!!!!!
 
 //ZERA W TYM IFIE NALEŻY ZASTĄPIĆ NUMERAMI NAJBARDZIEJ OPTYMALNEJ WINDY
-                    if(znalezionoprzystanek[0]==1)
+                    if(znalezionoprzystanek[numer_optymalnej_windy]==1)
                     {
-                        windy[0].przystanki.push_back(w);
+                        windy[numer_optymalnej_windy].przystanki.push_back(w);
                     }
                     else
                     {
-                        windy[0].polecenia.push_back(w);
+                        windy[numer_optymalnej_windy].polecenia.push_back(w);
                     }
                 }
             }
+
+
 
 //NADANIE POLECENIA KONKRETNEJ WINDZIE (WYBÓR PIĘTRA Z WINDY)
             else
@@ -518,6 +529,7 @@ void sterowanie()
 
                 if(jedzie==1)
                 {
+                    freezerdata=false;
                     continue;
                 }
 
@@ -573,15 +585,15 @@ int main()
     //ElevatorData status=ElevatorData::STOP;
     freezerdata=0;
 
-    int underway_Status[1];
-    for(int i=0;i<1;i++)
+    int underway_Status[2];
+    for(int i=0;i<2;i++)
     {
         underway_Status[i]=0;
     }
 
     //int current_destination=0;
-    int cooldown[1];
-    for(int i=0;i<1;i++)
+    int cooldown[2];
+    for(int i=0;i<2;i++)
     {
         cooldown[i]=0;
     }
@@ -606,7 +618,7 @@ int main()
 
         //setCursor(0,0);
 
-        for(int i=0;i<1;i++)
+        for(int i=0;i<2;i++)
         {
 
             if(cooldown[i]==0)
@@ -668,7 +680,8 @@ int main()
                 }
             }
             else{cooldown[i]=cooldown[i]-1;}
-            cout<<"Elevator 0:"<<endl;
+
+            cout<<"Elevator "<<i<<":"<<endl;
             switch(windy[i].status)
             {
                 case ElevatorData::UP : {cout<<"underway, using engine"<<endl<<"door closed"<<endl;} break;
@@ -690,8 +703,9 @@ int main()
                     cout<<".";
                 }
             }
-
+            cout<<endl<<endl;
         }
+        cout<<"Type commands here:";
     }
 }
 
