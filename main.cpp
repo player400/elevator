@@ -608,20 +608,6 @@ int main()
 
         for(int i=0;i<1;i++)
         {
-            cout<<"Elevator 0:"<<endl;
-            switch(windy[i].status)
-            {
-                case ElevatorData::UP : {cout<<"underway, using engine"<<endl<<"door closed"<<endl;} break;
-                case ElevatorData::DOWN : {cout<<"underway, using gravity"<<endl<<"door closed"<<endl;} break;
-                case ElevatorData::STOP : {cout<<"full stop"<<endl<<"door open"<<endl;} break;
-            }
-
-            cout<<windy[i].last_floor_number<<endl;
-//          cout<<current_destination<<endl;
-//          for(int i=0;i<polecenia.size();i++)
-//          {
-//              cout<<polecenia[i]<<" ";
-//          }
 
             if(cooldown[i]==0)
             {
@@ -643,14 +629,7 @@ int main()
                     windy[i].status=ElevatorData::UP;
                 }
 
-                if((windy[i].status==ElevatorData::UP)||(windy[i].status==ElevatorData::DOWN))
-                {
-                    underway_Status[i]++;
-                    for(int j=0;j<underway_Status[i];j++)
-                    {
-                        cout<<".";
-                    }
-                }
+
 
                 if(underway_Status[i]==5)
                 {
@@ -689,6 +668,29 @@ int main()
                 }
             }
             else{cooldown[i]=cooldown[i]-1;}
+            cout<<"Elevator 0:"<<endl;
+            switch(windy[i].status)
+            {
+                case ElevatorData::UP : {cout<<"underway, using engine"<<endl<<"door closed"<<endl;} break;
+                case ElevatorData::DOWN : {cout<<"underway, using gravity"<<endl<<"door closed"<<endl;} break;
+                case ElevatorData::STOP : {cout<<"full stop"<<endl<<"door open"<<endl;} break;
+            }
+
+            cout<<windy[i].last_floor_number<<endl;
+//          cout<<current_destination<<endl;
+//          for(int i=0;i<polecenia.size();i++)
+//          {
+//              cout<<polecenia[i]<<" ";
+//          }
+            if((windy[i].status==ElevatorData::UP)||(windy[i].status==ElevatorData::DOWN))
+            {
+                underway_Status[i]++;
+                for(int j=0;j<underway_Status[i];j++)
+                {
+                    cout<<".";
+                }
+            }
+
         }
     }
 }
