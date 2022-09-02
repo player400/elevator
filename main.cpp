@@ -570,13 +570,14 @@ int main()
 
     cout<<"Welcome to EURO ELEVATOR Simulator 1.0"<<endl;
     cout<<"Press 1 to launch the Sandbox Mode"<<endl;
+    int modenumber=0;
     char menu;
     menu=getch();
     switch (menu)
     {
-        case '1': {cout<<"Welcome to Sandbox Mode!"<<endl;} break;
-        default : {cout<<"Command not recognised!"<<endl;} break;
+        case '1': {cout<<"Welcome to Sandbox Mode!"<<endl<<endl;modenumber=1;} break;
     }
+
     #ifdef _WIN32
         system ("cls");
     #endif
@@ -586,9 +587,25 @@ int main()
     #endif
 
 
+    cout<<"CONTROLS:"<<endl<<endl;
+    cout<<"To simulate calling an elevator from the hallway type: -1 <floor number> <direction>. Direction is either u - for going up or d - for going down."<<endl;
+    cout<<"This command will call the nearest elevator to the floor chosen."<<endl<<endl;
+    cout<<"To simulate sending a specific elevator somewhere using buttons in the elevator type <elevator number> <floor number>"<<endl<<endl;
+    cout<<"To start the simulation type 2 and click Enter. Have fun!"<<endl;
+
+    int ilewind;
+    cin>>ilewind;
+
+    #ifdef _WIN32
+        system ("cls");
+    #endif
+
+    #ifdef __linux__
+        system("clear");
+    #endif
+
     thread t1(sterowanie);
 
-    //ElevatorData status=ElevatorData::STOP;
     freezerdata=0;
 
     int underway_Status[2];
@@ -597,7 +614,7 @@ int main()
         underway_Status[i]=0;
     }
 
-    //int current_destination=0;
+
     int cooldown[2];
     for(int i=0;i<2;i++)
     {
@@ -713,5 +730,6 @@ int main()
         }
         cout<<"Type commands here:";
     }
+    return 0;
 }
 
