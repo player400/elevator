@@ -260,14 +260,14 @@ void nbi_wait() {
 
 
 bool freezerdata=false;
-
+int ilewind;
 
 struct ElevatorData
 {
     vector<int>polecenia;
     list<int>przystanki;
-    int last_floor_number=0;
-    int current_destination=0;
+    int last_floor_number;
+    int current_destination;
 
     enum status_
     {
@@ -276,12 +276,12 @@ struct ElevatorData
         STOP
     };
 
-    status_ status=status_::STOP;
+    status_ status;
 
 
 };
 
- ElevatorData windy[2];
+ vector<ElevatorData>windy;
 
 //void setCursor(int x, int y)
 //{
@@ -349,8 +349,8 @@ void sterowanie()
             int w;
             cin>>w;
 
-            int liczba_polecen[2];
-            for(int i=0;i<2;i++)
+            int liczba_polecen[ilewind];
+            for(int i=0;i<ilewind;i++)
             {
                 liczba_polecen[i]=windy[i].polecenia.size();
             }
@@ -362,8 +362,7 @@ void sterowanie()
                 cin>>direction;
                 int jedzie=0;
 
-//PRZY DODAWANIU WIND KONIECZNA ZMIANA WARUNKU PĘTLI ORAZ UZALEŻNIENIA ZMIENNYCH OD ITOERATORA PĘTLI (NP. przystanki[j].elevator[i]==w)
-                for(int i=0;i<2;i++)
+                for(int i=0;i<ilewind;i++)
                 {
 
                     if(contains(windy[i].przystanki,w))
@@ -383,6 +382,11 @@ void sterowanie()
                         }
 
                     }
+
+                    if((windy[i].last_floor_number==w)&&(windy[i].status==ElevatorData::STOP))
+                    {
+                        jedzie=1;
+                    }
                 }
 
                 if(jedzie==1)
@@ -393,12 +397,10 @@ void sterowanie()
                 else
                 {
 
-                    int distance[2];
-                    int znalezionoprzystanek[2];
+                    int distance[ilewind];
+                    int znalezionoprzystanek[ilewind];
 
-//KOLEJNA PĘTLA DO ZMIANY, NALEŻY ZMIENIĆ RÓWNIEŻ TABLICE distance ORAZ znalezionoprzystanek PRZY WIELU WINDACH TRZEBA BĘDZIE DODAĆ INDEXY DO WSZYSTKICH ZMIENNYCH
-//PĘTLA MUSI ITEROWAĆ SIĘ TYLE RAZY ILE JEST WIND
-                    for(int i=0;i<2;i++)
+                    for(int i=0;i<ilewind;i++)
                     {
                         znalezionoprzystanek[i]=0;
                         distance[i]=0;
@@ -479,16 +481,14 @@ void sterowanie()
                     }
 
                     int numer_optymalnej_windy=0;
-                    for(int i=0; i<2; i++)
+                    for(int i=0; i<ilewind; i++)
                     {
                         if(distance[numer_optymalnej_windy]>distance[i])
                         {
                             numer_optymalnej_windy=i;
                         }
                     }
-//TUTAJ MUSI BYĆ WYSZUKIWANIE NAJMNIEJSZEGO ELEMENTU Z TABLICY distance W CELU OPTYMALIZACJI TRASY !!!!!!!
 
-//ZERA W TYM IFIE NALEŻY ZASTĄPIĆ NUMERAMI NAJBARDZIEJ OPTYMALNEJ WINDY
                     if(znalezionoprzystanek[numer_optymalnej_windy]==1)
                     {
                         windy[numer_optymalnej_windy].przystanki.push_back(w);
@@ -507,8 +507,6 @@ void sterowanie()
             {
                 int jedzie=0;
 
-//PRZY DODAWANIU WIND KONIECZNA ZMIANA WARUNKU PĘTLI ORAZ UZALEŻNIENIA ZMIENNYCH OD ITOERATORA PĘTLI (NP. przystanki[j].elevator[i]==w)
-
 
                 if(contains(windy[numer_windy].przystanki,w))
                 {
@@ -526,6 +524,11 @@ void sterowanie()
                         break;
                     }
 
+                }
+
+                if((windy[numer_windy].last_floor_number==w)&&(windy[numer_windy].status==ElevatorData::STOP))
+                {
+                        jedzie=1;
                 }
 
                 if(jedzie==1)
@@ -593,8 +596,16 @@ int main()
     cout<<"To simulate sending a specific elevator somewhere using buttons in the elevator type <elevator number> <floor number>"<<endl<<endl;
     cout<<"To start the simulation type 2 and click Enter. Have fun!"<<endl;
 
-    int ilewind;
     cin>>ilewind;
+
+    for(int i=0;i<ilewind;i++)
+    {
+        ElevatorData pustawinda;
+        pustawinda.status = ElevatorData::STOP;
+        pustawinda.last_floor_number = 0;
+        pustawinda.current_destination = 0;
+        windy.push_back(pustawinda);
+    }
 
     #ifdef _WIN32
         system ("cls");
@@ -608,15 +619,15 @@ int main()
 
     freezerdata=0;
 
-    int underway_Status[2];
-    for(int i=0;i<2;i++)
+    int underway_Status[ilewind];
+    for(int i=0;i<ilewind;i++)
     {
         underway_Status[i]=0;
     }
 
 
-    int cooldown[2];
-    for(int i=0;i<2;i++)
+    int cooldown[ilewind];
+    for(int i=0;i<ilewind;i++)
     {
         cooldown[i]=0;
     }
@@ -641,7 +652,7 @@ int main()
 
         //setCursor(0,0);
 
-        for(int i=0;i<2;i++)
+        for(int i=0;i<ilewind;i++)
         {
 
             if(cooldown[i]==0)
