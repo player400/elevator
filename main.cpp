@@ -21,6 +21,7 @@
 #include <list>
 #include <math.h>
 #include <chrono>
+#include <conio.h>
 using namespace std;
 
 
@@ -568,9 +569,14 @@ int main()
 {
 
     cout<<"Welcome to EURO ELEVATOR Simulator 1.0"<<endl;
-    cout<<"Press 1 and click Enter to launch the Sandbox Mode"<<endl;
+    cout<<"Press 1 to launch the Sandbox Mode"<<endl;
     char menu;
-    cin>>menu;
+    menu=getch();
+    switch (menu)
+    {
+        case '1': {cout<<"Welcome to Sandbox Mode!"<<endl;} break;
+        default : {cout<<"Command not recognised!"<<endl;} break;
+    }
     #ifdef _WIN32
         system ("cls");
     #endif
