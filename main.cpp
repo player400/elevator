@@ -326,6 +326,45 @@ int maksimum(int liczba_polecen, int winda)
     return wynik;
 }
 
+bool czy_jedzie_konkretna(int i, int w)
+{
+    if(contains(windy[i].przystanki,w))
+    {
+        return true;
+    }
+
+    for(int j=0;j<windy[i].polecenia.size();j++)
+    {
+        if(windy[i].polecenia[j]==w)
+        {
+            return true;
+        }
+    }
+
+    if((windy[i].last_floor_number==w)&&(windy[i].status==ElevatorData::STOP))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+
+bool czy_jedzie(int numerwindy, int numerpietra)
+{
+    if(numerwindy==-1)
+    {
+        for(int i=0;i<ilewind;i++)
+        {
+            return czy_jedzie_konkretna(i, numerpietra);
+        }
+        return false;
+    }
+
+    return czy_jedzie_konkretna(numerwindy, numerpietra);
+
+}
+
 
 void sterowanie()
 {
@@ -360,40 +399,13 @@ void sterowanie()
             {
                 char direction;
                 cin>>direction;
-                int jedzie=0;
 
-                for(int i=0;i<ilewind;i++)
-                {
-
-                    if(contains(windy[i].przystanki,w))
-                    {
-                        jedzie=1;
-
-                    }
-
-
-
-                    for(int j=0;j<liczba_polecen[i];j++)
-                    {
-                        if(windy[i].polecenia[j]==w)
-                        {
-                            jedzie=1;
-                            break;
-                        }
-
-                    }
-
-                    if((windy[i].last_floor_number==w)&&(windy[i].status==ElevatorData::STOP))
-                    {
-                        jedzie=1;
-                    }
-                }
-
-                if(jedzie==1)
+                if(czy_jedzie(-1, w))
                 {
                     freezerdata=false;
                     continue;
                 }
+
                 else
                 {
 
@@ -505,33 +517,8 @@ void sterowanie()
 //NADANIE POLECENIA KONKRETNEJ WINDZIE (WYBÓR PIĘTRA Z WINDY)
             else
             {
-                int jedzie=0;
 
-
-                if(contains(windy[numer_windy].przystanki,w))
-                {
-                    jedzie=1;
-
-                }
-
-
-
-                for(int j=0;j<liczba_polecen[numer_windy];j++)
-                {
-                    if(windy[numer_windy].polecenia[j]==w)
-                    {
-                        jedzie=1;
-                        break;
-                    }
-
-                }
-
-                if((windy[numer_windy].last_floor_number==w)&&(windy[numer_windy].status==ElevatorData::STOP))
-                {
-                        jedzie=1;
-                }
-
-                if(jedzie==1)
+                if(czy_jedzie(numer_windy, w))
                 {
                     freezerdata=false;
                     continue;
@@ -558,9 +545,6 @@ void sterowanie()
                     }
                 }
             }
-
-
-            //polecenia.push_back(w);
             freezerdata=false;
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -594,7 +578,7 @@ int main()
     cout<<"To simulate calling an elevator from the hallway type: -1 <floor number> <direction>. Direction is either u - for going up or d - for going down."<<endl;
     cout<<"This command will call the nearest elevator to the floor chosen."<<endl<<endl;
     cout<<"To simulate sending a specific elevator somewhere using buttons in the elevator type <elevator number> <floor number>"<<endl<<endl;
-    cout<<"To start the simulation type 2 and click Enter. Have fun!"<<endl;
+    cout<<"To start type the number of elevators you want to simulate and click Enter. Have fun!"<<endl;
 
     cin>>ilewind;
 
