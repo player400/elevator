@@ -328,23 +328,22 @@ int maksimum(int liczba_polecen, int winda)
 
 bool czy_jedzie_konkretna(int i, int w)
 {
-    if(contains(windy[i].przystanki,w))
+    auto& winda=windy[i];
+
+    if(contains(winda.przystanki,w))
     {
         return true;
     }
 
-    for(int j=0;j<windy[i].polecenia.size();j++)
+    for(int j=0;j<winda.polecenia.size();j++)
     {
-        if(windy[i].polecenia[j]==w)
+        if(winda.polecenia[j]==w)
         {
             return true;
         }
     }
 
-    if((windy[i].last_floor_number==w)&&(windy[i].status==ElevatorData::STOP))
-    {
-        return true;
-    }
+    return (winda.last_floor_number==w)&&(winda.status==ElevatorData::STOP);
 
     return false;
 }
