@@ -5,8 +5,8 @@
 //PLEASE FOLLOW THE FOLLOWING RULES WHILE USING, SHARING, DISTRIBUTING, CHANGING ETC. MY CODE:
 //1. F*CK YOU THIEF, GO WRITE YOUR OWN CODE
 //2. YOU CANT? GO CRY TO YOUR MOMMY
-//3. JUST JOKING, GO TO pasjaprogramowania.pl AND LEARN TO MAKE NOT-SO-COOL SOFTWARE YOURSELF!
-//4. But actually idc I'd need to be a moron to write a licence for 300 lines of code and legal stuff is boring anyway - just do whatever you want with it
+//3. JUST JOKING, GO TO pasjainformatyki.pl AND LEARN TO MAKE NOT-SO-COOL SOFTWARE YOURSELF!
+//4. But actually idc I'd need to be a moron to write a licence for few hundred lines of code and legal stuff is boring anyway - just do whatever you want with it
 //5. HAVE FUN :-)
 //6. PS - I am not responsible for anything anyone uses my software for. If it breaks down your machine (higly unlikely), it's your problem. I do not guarantee anything concerning this code.
 
@@ -259,15 +259,17 @@ void nbi_wait() {
 //DETAILS ARE PROVIDED ON TOP OF THE CODE IN THE EES LICENCE AGREEMENT
 
 
-bool freezerdata=false;
+volatile bool wstrzymywanie=false;
 int ilewind;
 
 struct ElevatorData
 {
     vector<int>polecenia;
     list<int>przystanki;
-    int last_floor_number;
+    int last_floor_number=0;
     int current_destination;
+    int underway_status=0;
+    int cooldown=0;
 
     enum status_
     {
@@ -302,27 +304,29 @@ void czyszczenie()
         #endif
 }
 
-int minimum(int liczba_polecen, int winda)
+int minimum(int liczba_polecen, int i)
 {
-    int wynik=windy[winda].polecenia[0];
+    auto& winda=windy[i];
+    int wynik=winda.polecenia[0];
     for(int i=0;i<liczba_polecen;i++)
     {
-        if(windy[winda].polecenia[i]<wynik)
+        if(winda.polecenia[i]<wynik)
         {
-            wynik=windy[winda].polecenia[i];
+            wynik=winda.polecenia[i];
         }
     }
     return wynik;
 }
 
-int maksimum(int liczba_polecen, int winda)
+int maksimum(int liczba_polecen, int i)
 {
-   int wynik=windy[winda].polecenia[0];
+    auto& winda=windy[i];
+    int wynik=winda.polecenia[0];
     for(int i=0;i<liczba_polecen;i++)
     {
-        if(windy[winda].polecenia[i]>wynik)
+        if(winda.polecenia[i]>wynik)
         {
-            wynik=windy[winda].polecenia[i];
+            wynik=winda.polecenia[i];
         }
     }
     return wynik;
@@ -357,7 +361,7 @@ bool czy_jedzie_konkretna(int i, int w)
 
     return (winda.last_floor_number==w)&&(winda.status==ElevatorData::STOP);
 
-    return false;
+
 }
 
 
@@ -376,10 +380,138 @@ bool czy_jedzie(int numerwindy, int numerpietra)
 
 }
 
+int dystans(int w, int liczba_polecen, char direction, ElevatorData winda, bool*pointer)
+{
+    int distance;
+
+    if(liczba_polecen==0)
+    {
+        distance=abs(winda.last_floor_number-w);
+        return distance;
+    }
+
+
+    if((winda.polecenia[0]>w && winda.last_floor_number<w && direction=='u')||(winda.polecenia[0]<w && winda.last_floor_number>w && direction=='d'))
+    {
+        *pointer=true;
+        distance=abs(w-winda.last_floor_number);
+        return distance;
+    }
+    else
+    {
+        distance=abs(winda.last_floor_number-winda.polecenia[0]);
+    }
+
+    for(int j=0;j<(liczba_polecen-1);j++)
+    {
+        if((winda.polecenia[j]<w && winda.polecenia[j+1]>w && direction=='u') || (winda.polecenia[j]>w && winda.polecenia[j+1]<w && direction=='d'))
+        {
+            distance=distance+abs(winda.polecenia[j]-w);
+            *pointer=true;
+            return distance;
+        }
+        else
+        {
+            distance=distance+abs(winda.polecenia[j]-winda.polecenia[j+1]);
+        }
+    }
+
+
+    distance=distance+abs(winda.polecenia[liczba_polecen-1]-w);
+
+    return distance;
+}
+
+
+void wywolanie_dowolnej_windy(int w, char direction)
+{
+
+    int liczba_polecen[ilewind];
+    for(int i=0;i<ilewind;i++)
+    {
+        liczba_polecen[i]=windy[i].polecenia.size();
+    }
+
+    bool stop_found[ilewind];
+    int minimum_distance;
+    int numer_optymalnej_windy=0;
+
+    for(int i=0;i<ilewind;i++)
+    {
+        auto& winda=windy[i];
+        stop_found[i]=false;
+        bool*pointer;
+        pointer=&stop_found[i];
+
+        int distance=dystans(w, liczba_polecen[i], direction, winda, pointer);
+
+        if(i==0)
+        {
+            minimum_distance=distance;
+        }
+
+        if(distance<minimum_distance)
+        {
+            minimum_distance=distance;
+            numer_optymalnej_windy=i;
+        }
+    }
+
+    if(stop_found[numer_optymalnej_windy]==true)
+    {
+        windy[numer_optymalnej_windy].przystanki.push_back(w);
+    }
+    else
+    {
+        windy[numer_optymalnej_windy].polecenia.push_back(w);
+    }
+
+}
+
+void polecenie_konkretnej_windy(int w, int numer_windy)
+{
+    int liczba_polecen[ilewind];
+    for(int i=0;i<ilewind;i++)
+    {
+        liczba_polecen[i]=windy[i].polecenia.size();
+    }
+
+    auto& winda=windy[numer_windy];
+
+    if(liczba_polecen[numer_windy]==0)
+    {
+        winda.polecenia.push_back(w);
+    }
+    else
+    {
+        int far_points[3];
+        far_points[0]=winda.last_floor_number;
+        far_points[1]=minimum(liczba_polecen[numer_windy], numer_windy);
+        far_points[2]=maksimum(liczba_polecen[numer_windy], numer_windy);
+
+        for(int k=0;k<2;k++)
+        {
+            if(far_points[k]>far_points[k+1])
+            {
+                int intermediary=far_points[k];
+                far_points[k]=far_points[k+1];
+                far_points[k+1]=intermediary;
+            }
+        }
+
+        if( w>far_points[0] && w<far_points[2] )
+        {
+            winda.przystanki.push_back(w);
+        }
+        else
+        {
+            winda.polecenia.push_back(w);
+        }
+    }
+}
 
 void sterowanie()
 {
-
 
     cout<<"Launching the Sandbox mode..."<<endl;
     for(int i=0;i<20;i++)
@@ -392,17 +524,11 @@ void sterowanie()
     {
         if(nbi_get_flag())
         {
-            freezerdata=true;
+            wstrzymywanie=true;
             int numer_windy;
             cin>>numer_windy;
             int w;
             cin>>w;
-
-            int liczba_polecen[ilewind];
-            for(int i=0;i<ilewind;i++)
-            {
-                liczba_polecen[i]=windy[i].polecenia.size();
-            }
 
 //WYWOLANIE OGOLNE (PRZYWOŁANIE WINDY Z HOLU)
             if(numer_windy==-1)
@@ -412,77 +538,11 @@ void sterowanie()
 
                 if(czy_jedzie(-1, w))
                 {
-                    freezerdata=false;
+                    wstrzymywanie=false;
                     continue;
                 }
 
-                else
-                {
-
-                    int distance[ilewind];
-                    int znalezionoprzystanek[ilewind];
-
-                    for(int i=0;i<ilewind;i++)
-                    {
-                        auto& winda=windy[i];
-                        znalezionoprzystanek[i]=0;
-                        distance[i]=0;
-                        if(liczba_polecen[i]==0)
-                        {
-                            distance[i]=abs(winda.last_floor_number-w);
-                            continue;
-                        }
-
-
-//PRIORYTET WINDY
-                        if(liczba_polecen[i]==1)
-                        {
-                            if((winda.polecenia[0]>w && winda.last_floor_number<w && direction=='u')||(winda.polecenia[0]<w && winda.last_floor_number>w && direction=='d'))
-                            {
-                                znalezionoprzystanek[i]=1;
-                                distance[i]=abs(w-winda.last_floor_number);
-                            }
-                        }
-
-                        for(int j=0;j<(liczba_polecen[i]-1);j++)
-                        {
-                            if((winda.polecenia[j]<w && winda.polecenia[j+1]>w && direction=='u') || (winda.polecenia[j]>w && winda.polecenia[j+1]<w && direction=='d'))
-                            {
-                                distance[i]=distance[i]+abs(winda.polecenia[j]-w);
-                                znalezionoprzystanek[i]=1;
-                                break;
-                            }
-                            else
-                            {
-                                distance[i]=distance[i]+abs(winda.polecenia[j]-winda.polecenia[j+1]);
-                            }
-
-                        }
-
-                        if(znalezionoprzystanek[i]==0)
-                        {
-                            distance[i]=distance[i]+abs(w-winda.polecenia[liczba_polecen[i]-1]);
-                        }
-                    }
-
-                    int numer_optymalnej_windy=0;
-                    for(int i=0; i<ilewind; i++)
-                    {
-                        if(distance[numer_optymalnej_windy]>distance[i])
-                        {
-                            numer_optymalnej_windy=i;
-                        }
-                    }
-
-                    if(znalezionoprzystanek[numer_optymalnej_windy]==1)
-                    {
-                        windy[numer_optymalnej_windy].przystanki.push_back(w);
-                    }
-                    else
-                    {
-                        windy[numer_optymalnej_windy].polecenia.push_back(w);
-                    }
-                }
+                wywolanie_dowolnej_windy(w, direction);
             }
 
 
@@ -493,34 +553,15 @@ void sterowanie()
 
                 if(czy_jedzie(numer_windy, w))
                 {
-                    freezerdata=false;
+                    wstrzymywanie=false;
                     continue;
                 }
 
+                polecenie_konkretnej_windy(w, numer_windy);
 
-
-                else
-                {
-
-                    auto& winda=windy[numer_windy];
-                    if(liczba_polecen[numer_windy]==0)
-                    {
-                        winda.polecenia.push_back(w);
-                    }
-                    else
-                    {
-                        if(( (maksimum(liczba_polecen[numer_windy], numer_windy)>w) && (minimum(liczba_polecen[numer_windy], numer_windy)<w) ) || ( (maksimum(liczba_polecen[numer_windy], numer_windy)>w) && (winda.last_floor_number<w) ) || ( (winda.last_floor_number>w) && (minimum(liczba_polecen[numer_windy], numer_windy)<w) ))
-                        {
-                            winda.przystanki.push_back(w);
-                        }
-                        else
-                        {
-                            winda.polecenia.push_back(w);
-                        }
-                    }
-                }
             }
-            freezerdata=false;
+
+            wstrzymywanie=false;
         }
     }
 }
@@ -561,26 +602,13 @@ int main()
 
     thread t1(sterowanie);
 
-    freezerdata=0;
-
-    int underway_Status[ilewind];
-    for(int i=0;i<ilewind;i++)
-    {
-        underway_Status[i]=0;
-    }
-
-
-    int cooldown[ilewind];
-    for(int i=0;i<ilewind;i++)
-    {
-        cooldown[i]=0;
-    }
+    wstrzymywanie=false;
 
     while(true)
     {
         this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-        while(freezerdata)
+        while(wstrzymywanie)
         {
              this_thread::sleep_for(std::chrono::milliseconds(10));
 
@@ -591,7 +619,7 @@ int main()
         for(int i=0;i<ilewind;i++)
         {
 
-            if(cooldown[i]==0)
+            if(windy[i].cooldown==0)
             {
 
                 if(!windy[i].polecenia.empty())
@@ -613,7 +641,7 @@ int main()
 
 
 
-                if(underway_Status[i]==5)
+                if(windy[i].underway_status==5)
                 {
                     if(windy[i].status==ElevatorData::UP)
                     {
@@ -625,11 +653,11 @@ int main()
                         windy[i].last_floor_number--;
                     }
 
-                    underway_Status[i]=0;
+                    windy[i].underway_status=0;
 
                     if(windy[i].last_floor_number==windy[i].current_destination)
                     {
-                        cooldown[i]=5;
+                        windy[i].cooldown=5;
 
                         windy[i].status=ElevatorData::STOP;
                         windy[i].polecenia.erase(windy[i].polecenia.begin());
@@ -641,7 +669,7 @@ int main()
 
                     if(czy_zawiera(windy[i].przystanki,windy[i].last_floor_number))
                     {
-                        cooldown[i]=5;
+                        windy[i].cooldown=5;
 
                         windy[i].status=ElevatorData::STOP;
                         windy[i].przystanki.remove(windy[i].last_floor_number);
@@ -649,7 +677,7 @@ int main()
 
                 }
             }
-            else{cooldown[i]=cooldown[i]-1;}
+            else{windy[i].cooldown=windy[i].cooldown-1;}
 
             cout<<"Elevator "<<i<<":"<<endl;
             switch(windy[i].status)
@@ -667,8 +695,8 @@ int main()
 //          }
             if((windy[i].status==ElevatorData::UP)||(windy[i].status==ElevatorData::DOWN))
             {
-                underway_Status[i]++;
-                for(int j=0;j<underway_Status[i];j++)
+                windy[i].underway_status++;
+                for(int j=0;j<windy[i].underway_status;j++)
                 {
                     cout<<".";
                 }
