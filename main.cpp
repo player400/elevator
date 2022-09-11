@@ -21,7 +21,9 @@
 #include <list>
 #include <math.h>
 #include <chrono>
-#include <conio.h>
+
+#include <algorithm>
+
 using namespace std;
 
 
@@ -260,30 +262,22 @@ void nbi_wait() {
 
 
 volatile bool wstrzymywanie=false;
-int ilewind;
+int ile_wind;
 
-struct ElevatorData
+void spij(int time)
 {
-    vector<int>polecenia;
-    list<int>przystanki;
-    int last_floor_number=0;
-    int current_destination;
-    int underway_status=0;
-    int cooldown=0;
+    this_thread::sleep_for(std::chrono::milliseconds(time));
+}
 
-    enum status_
+template<class T>
+bool czy_zawiera(T& elements, int neadle)
+{
+    for(int element : elements)
     {
-        UP,
-        DOWN,
-        STOP
-    };
-
-    status_ status;
-
-
-};
-
- vector<ElevatorData>windy;
+        if(element == neadle) return true;
+    }
+    return false;
+}
 
 //void setCursor(int x, int y)
 //{
@@ -304,146 +298,272 @@ void czyszczenie()
         #endif
 }
 
-int minimum(int liczba_polecen, int i)
+
+class ElevatorData
 {
-    auto& winda=windy[i];
-    int wynik=winda.polecenia[0];
-    for(int i=0;i<liczba_polecen;i++)
-    {
-        if(winda.polecenia[i]<wynik)
+    private:
+        vector<int>polecenia;
+        list<int>przystanki;
+        int last_floor_number=0;
+        int current_destination=0;
+        int underway_status=0;
+        int cooldown=0;
+
+        enum status_
         {
-            wynik=winda.polecenia[i];
-        }
-    }
-    return wynik;
-}
+            UP,
+            DOWN,
+            STOP,
+        };
 
-int maksimum(int liczba_polecen, int i)
-{
-    auto& winda=windy[i];
-    int wynik=winda.polecenia[0];
-    for(int i=0;i<liczba_polecen;i++)
-    {
-        if(winda.polecenia[i]>wynik)
+        status_ status=STOP;
+
+
+
+        int minimum()
         {
-            wynik=winda.polecenia[i];
+            return *std::min_element(polecenia.begin(), polecenia.end());
         }
-    }
-    return wynik;
-}
 
 
-bool czy_zawiera(std::list<int>& elements, int neadle)
-{
-    for(int element : elements)
-    {
-        if(element == neadle) return true;
-    }
-    return false;
-}
-
-bool czy_jedzie_konkretna(int i, int w)
-{
-    auto& winda=windy[i];
-
-    if(czy_zawiera(winda.przystanki,w))
-    {
-        return true;
-    }
-
-    for(int j=0;j<winda.polecenia.size();j++)
-    {
-        if(winda.polecenia[j]==w)
+        int maksimum()
         {
-            return true;
+            return *std::max_element(polecenia.begin(), polecenia.end());
         }
-    }
 
-    return (winda.last_floor_number==w)&&(winda.status==ElevatorData::STOP);
+    public:
+        void dodaj_polecenie(int w)
+        {
+            polecenia.push_back(w);
+        }
 
 
-}
+        void dodaj_przystanek(int w)
+        {
+            przystanki.push_back(w);
+        }
 
+
+        bool czy_jedzie(int w)
+        {
+
+            if(czy_zawiera(przystanki,w))
+            {
+                return true;
+            }
+
+
+            if(czy_zawiera(polecenia,w))
+            {
+                return true;
+            }
+
+            return (last_floor_number==w)&&(status==STOP);
+        }
+
+
+
+        void dodaj_komende(int w)
+        {
+
+
+            if(polecenia.size()==0)
+            {
+                dodaj_polecenie(w);
+            }
+            else
+            {
+                int far_points[3];
+                far_points[0]=last_floor_number;
+                far_points[1]=minimum();
+                far_points[2]=maksimum();
+
+                for(int k=0;k<2;k++)
+                {
+                    if(far_points[k]>far_points[k+1])
+                    {
+                        int intermediary=far_points[k];
+                        far_points[k]=far_points[k+1];
+                        far_points[k+1]=intermediary;
+                    }
+                }
+
+                if( w>far_points[0] && w<far_points[2] )
+                {
+                    dodaj_przystanek(w);
+                }
+                else
+                {
+                    dodaj_polecenie(w);
+                }
+            }
+        }
+
+
+//FUNKCJA OBLICZAJACA JAK DELAKO WINDA MUSIALABY JECHAC ABY DOTRZEC NA PIETRO int==w Z UWZGLEDNIENIEM direction I INNYCH POLECEN DANEJ WINDY
+        int dystans(int w, char direction, bool*pointer)
+        {
+            int distance;
+
+            if(polecenia.size()==0)
+            {
+                distance=abs(last_floor_number-w);
+                return distance;
+            }
+
+
+            if((polecenia[0]>w && last_floor_number<w && direction=='u')||(polecenia[0]<w && last_floor_number>w && direction=='d'))
+            {
+                *pointer=true;
+                distance=abs(w-last_floor_number);
+                return distance;
+            }
+            else
+            {
+                distance=abs(last_floor_number-polecenia[0]);
+            }
+
+            for(int j=0;j<(polecenia.size()-1);j++)
+            {
+                if((polecenia[j]<w && polecenia[j+1]>w && direction=='u') || (polecenia[j]>w && polecenia[j+1]<w && direction=='d'))
+                {
+                    distance=distance+abs(polecenia[j]-w);
+                    *pointer=true;
+                    return distance;
+                }
+                else
+                {
+                    distance=distance+abs(polecenia[j]-polecenia[j+1]);
+                }
+            }
+
+
+            return distance+abs(polecenia[polecenia.size()-1]-w);
+        }
+
+//AKTUALIZACJA DANYCH WINDY
+        void aktualizuj(int i)
+        {
+            if(cooldown==0)
+            {
+
+                if(!polecenia.empty())
+                {
+                    current_destination=polecenia[0];
+
+                }
+
+                if(last_floor_number>current_destination)
+                {
+                    status=DOWN;
+
+                }
+
+                if(last_floor_number<current_destination)
+                {
+                    status=UP;
+                }
+
+
+
+                if(underway_status==5)
+                {
+                    if(status==UP)
+                    {
+                        last_floor_number++;
+                    }
+
+                    if(status==DOWN)
+                    {
+                        last_floor_number--;
+                    }
+
+                    underway_status=0;
+
+                    if(last_floor_number==current_destination)
+                    {
+                        cooldown=5;
+
+                        status=STOP;
+                        polecenia.erase(polecenia.begin());
+
+                    }
+
+
+
+
+                    if(czy_zawiera(przystanki,last_floor_number))
+                    {
+                        cooldown=5;
+
+                        status=STOP;
+                        przystanki.remove(last_floor_number);
+                    }
+
+                }
+            }
+            else{cooldown=cooldown-1;}
+
+            cout<<"Elevator "<<i<<":"<<endl;
+            switch(status)
+            {
+                case UP : {cout<<"underway, using engine"<<endl<<"door closed"<<endl;} break;
+                case DOWN : {cout<<"underway, using gravity"<<endl<<"door closed"<<endl;} break;
+                case STOP : {cout<<"full stop"<<endl<<"door open"<<endl;} break;
+            }
+
+            cout<<last_floor_number<<endl;
+//          cout<<current_destination<<endl;
+//          for(int i=0;i<polecenia.size();i++)
+//          {
+//              cout<<polecenia[i]<<" ";
+//          }
+            if((status==UP)||(status==DOWN))
+            {
+                underway_status++;
+                for(int j=0;j<underway_status;j++)
+                {
+                    cout<<".";
+                }
+            }
+            cout<<endl<<endl;
+        }
+
+
+};
+
+ vector<ElevatorData>windy;
 
 bool czy_jedzie(int numerwindy, int numerpietra)
 {
     if(numerwindy==-1)
     {
-        for(int i=0;i<ilewind;i++)
+        for(int i=0;i<ile_wind;i++)
         {
-            return czy_jedzie_konkretna(i, numerpietra);
+            return windy[i].czy_jedzie(numerpietra);
         }
         return false;
     }
 
-    return czy_jedzie_konkretna(numerwindy, numerpietra);
+    return windy[numerwindy].czy_jedzie(numerpietra);
 
 }
 
-int dystans(int w, int liczba_polecen, char direction, ElevatorData winda, bool*pointer)
-{
-    int distance;
-
-    if(liczba_polecen==0)
-    {
-        distance=abs(winda.last_floor_number-w);
-        return distance;
-    }
-
-
-    if((winda.polecenia[0]>w && winda.last_floor_number<w && direction=='u')||(winda.polecenia[0]<w && winda.last_floor_number>w && direction=='d'))
-    {
-        *pointer=true;
-        distance=abs(w-winda.last_floor_number);
-        return distance;
-    }
-    else
-    {
-        distance=abs(winda.last_floor_number-winda.polecenia[0]);
-    }
-
-    for(int j=0;j<(liczba_polecen-1);j++)
-    {
-        if((winda.polecenia[j]<w && winda.polecenia[j+1]>w && direction=='u') || (winda.polecenia[j]>w && winda.polecenia[j+1]<w && direction=='d'))
-        {
-            distance=distance+abs(winda.polecenia[j]-w);
-            *pointer=true;
-            return distance;
-        }
-        else
-        {
-            distance=distance+abs(winda.polecenia[j]-winda.polecenia[j+1]);
-        }
-    }
-
-
-    distance=distance+abs(winda.polecenia[liczba_polecen-1]-w);
-
-    return distance;
-}
-
-
-void wywolanie_dowolnej_windy(int w, char direction)
+void wywolaj_dowolna_winde(int w, char direction)
 {
 
-    int liczba_polecen[ilewind];
-    for(int i=0;i<ilewind;i++)
-    {
-        liczba_polecen[i]=windy[i].polecenia.size();
-    }
-
-    bool stop_found[ilewind];
+    bool stop_found[ile_wind];
     int minimum_distance;
     int numer_optymalnej_windy=0;
 
-    for(int i=0;i<ilewind;i++)
+    for(int i=0;i<ile_wind;i++)
     {
-        auto& winda=windy[i];
+
         stop_found[i]=false;
         bool*pointer;
         pointer=&stop_found[i];
 
-        int distance=dystans(w, liczba_polecen[i], direction, winda, pointer);
+        int distance=windy[i].dystans(w, direction, pointer);
 
         if(i==0)
         {
@@ -459,56 +579,15 @@ void wywolanie_dowolnej_windy(int w, char direction)
 
     if(stop_found[numer_optymalnej_windy]==true)
     {
-        windy[numer_optymalnej_windy].przystanki.push_back(w);
+        windy[numer_optymalnej_windy].dodaj_przystanek(w);
     }
     else
     {
-        windy[numer_optymalnej_windy].polecenia.push_back(w);
+        windy[numer_optymalnej_windy].dodaj_polecenie(w);
     }
 
 }
 
-void polecenie_konkretnej_windy(int w, int numer_windy)
-{
-    int liczba_polecen[ilewind];
-    for(int i=0;i<ilewind;i++)
-    {
-        liczba_polecen[i]=windy[i].polecenia.size();
-    }
-
-    auto& winda=windy[numer_windy];
-
-    if(liczba_polecen[numer_windy]==0)
-    {
-        winda.polecenia.push_back(w);
-    }
-    else
-    {
-        int far_points[3];
-        far_points[0]=winda.last_floor_number;
-        far_points[1]=minimum(liczba_polecen[numer_windy], numer_windy);
-        far_points[2]=maksimum(liczba_polecen[numer_windy], numer_windy);
-
-        for(int k=0;k<2;k++)
-        {
-            if(far_points[k]>far_points[k+1])
-            {
-                int intermediary=far_points[k];
-                far_points[k]=far_points[k+1];
-                far_points[k+1]=intermediary;
-            }
-        }
-
-        if( w>far_points[0] && w<far_points[2] )
-        {
-            winda.przystanki.push_back(w);
-        }
-        else
-        {
-            winda.polecenia.push_back(w);
-        }
-    }
-}
 
 void sterowanie()
 {
@@ -517,7 +596,7 @@ void sterowanie()
     for(int i=0;i<20;i++)
     {
         cout<<"/  ";
-        this_thread::sleep_for(std::chrono::milliseconds(45));
+        spij(45);
     }
 
     while(true)
@@ -530,9 +609,12 @@ void sterowanie()
             int w;
             cin>>w;
 
+
+
 //WYWOLANIE OGOLNE (PRZYWOŁANIE WINDY Z HOLU)
             if(numer_windy==-1)
             {
+
                 char direction;
                 cin>>direction;
 
@@ -542,7 +624,8 @@ void sterowanie()
                     continue;
                 }
 
-                wywolanie_dowolnej_windy(w, direction);
+                wywolaj_dowolna_winde(w, direction);
+
             }
 
 
@@ -557,7 +640,7 @@ void sterowanie()
                     continue;
                 }
 
-                polecenie_konkretnej_windy(w, numer_windy);
+                windy[numer_windy].dodaj_komende(w);
 
             }
 
@@ -569,7 +652,7 @@ void sterowanie()
 int main()
 {
 
-    cout<<"Welcome to EURO ELEVATOR Simulator 1.0"<<endl;
+    cout<<"Welcome to EURO ELEVATOR Simulator 1.2/SNPS 5"<<endl;
     cout<<"Press 1 to launch the Sandbox Mode"<<endl;
     int modenumber=0;
     char menu;
@@ -587,14 +670,11 @@ int main()
     cout<<"To simulate sending a specific elevator somewhere using buttons in the elevator type <elevator number> <floor number>"<<endl<<endl;
     cout<<"To start type the number of elevators you want to simulate and click Enter. Have fun!"<<endl;
 
-    cin>>ilewind;
+    cin>>ile_wind;
 
-    for(int i=0;i<ilewind;i++)
+    for(int i=0;i<ile_wind;i++)
     {
         ElevatorData pustawinda;
-        pustawinda.status = ElevatorData::STOP;
-        pustawinda.last_floor_number = 0;
-        pustawinda.current_destination = 0;
         windy.push_back(pustawinda);
     }
 
@@ -606,102 +686,21 @@ int main()
 
     while(true)
     {
-        this_thread::sleep_for(std::chrono::milliseconds(1000));
+        spij(1000);
 
         while(wstrzymywanie)
         {
-             this_thread::sleep_for(std::chrono::milliseconds(10));
+             spij(10);
 
         }
 
         czyszczenie();
 
-        for(int i=0;i<ilewind;i++)
+        for(int i=0;i<ile_wind;i++)
         {
 
-            if(windy[i].cooldown==0)
-            {
+            windy[i].aktualizuj(i);
 
-                if(!windy[i].polecenia.empty())
-                {
-                    windy[i].current_destination=windy[i].polecenia[0];
-
-                }
-
-                if(windy[i].last_floor_number>windy[i].current_destination)
-                {
-                    windy[i].status=ElevatorData::DOWN;
-
-                }
-
-                if(windy[i].last_floor_number<windy[i].current_destination)
-                {
-                    windy[i].status=ElevatorData::UP;
-                }
-
-
-
-                if(windy[i].underway_status==5)
-                {
-                    if(windy[i].status==ElevatorData::UP)
-                    {
-                        windy[i].last_floor_number++;
-                    }
-
-                    if(windy[i].status==ElevatorData::DOWN)
-                    {
-                        windy[i].last_floor_number--;
-                    }
-
-                    windy[i].underway_status=0;
-
-                    if(windy[i].last_floor_number==windy[i].current_destination)
-                    {
-                        windy[i].cooldown=5;
-
-                        windy[i].status=ElevatorData::STOP;
-                        windy[i].polecenia.erase(windy[i].polecenia.begin());
-
-                    }
-
-
-
-
-                    if(czy_zawiera(windy[i].przystanki,windy[i].last_floor_number))
-                    {
-                        windy[i].cooldown=5;
-
-                        windy[i].status=ElevatorData::STOP;
-                        windy[i].przystanki.remove(windy[i].last_floor_number);
-                    }
-
-                }
-            }
-            else{windy[i].cooldown=windy[i].cooldown-1;}
-
-            cout<<"Elevator "<<i<<":"<<endl;
-            switch(windy[i].status)
-            {
-                case ElevatorData::UP : {cout<<"underway, using engine"<<endl<<"door closed"<<endl;} break;
-                case ElevatorData::DOWN : {cout<<"underway, using gravity"<<endl<<"door closed"<<endl;} break;
-                case ElevatorData::STOP : {cout<<"full stop"<<endl<<"door open"<<endl;} break;
-            }
-
-            cout<<windy[i].last_floor_number<<endl;
-//          cout<<current_destination<<endl;
-//          for(int i=0;i<polecenia.size();i++)
-//          {
-//              cout<<polecenia[i]<<" ";
-//          }
-            if((windy[i].status==ElevatorData::UP)||(windy[i].status==ElevatorData::DOWN))
-            {
-                windy[i].underway_status++;
-                for(int j=0;j<windy[i].underway_status;j++)
-                {
-                    cout<<".";
-                }
-            }
-            cout<<endl<<endl;
         }
         cout<<"Type commands here:";
     }
