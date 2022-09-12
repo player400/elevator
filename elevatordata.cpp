@@ -2,8 +2,8 @@
 using namespace std;
 
 #include "utilities.hpp"
-
-int ile_wind;
+#include "entitydata.hpp"
+#include "elevatordata.hpp"
 
 int ElevatorData::minimum()
 {
@@ -28,7 +28,7 @@ void ElevatorData::dodaj_przystanek(int w)
 }
 
 
-void ElevatorData::wyswietl(int i)
+void ElevatorData::wyswietl()
 {
     cout<<"Elevator "<<i<<":"<<endl;
     switch(status)
@@ -86,6 +86,12 @@ void ElevatorData::zmien_pietro()
 }
 
 
+bool ElevatorData::czy_stoi(int w)
+{
+    return last_floor_number==w && status==STOP;
+}
+
+
 bool ElevatorData::czy_jedzie(int w)
 {
 
@@ -100,9 +106,8 @@ bool ElevatorData::czy_jedzie(int w)
         return true;
     }
 
-    return (last_floor_number==w)&&(status==STOP);
+    return czy_stoi(w);
 }
-
 
 
 void ElevatorData::dodaj_komende(int w)
@@ -162,7 +167,6 @@ void ElevatorData::dodaj_komende(int w)
 }
 
 
-//FUNKCJA OBLICZAJACA JAK DELAKO WINDA MUSIALABY JECHAC ABY DOTRZEC NA PIETRO int==w Z UWZGLEDNIENIEM direction I INNYCH POLECEN DANEJ WINDY
 int ElevatorData::dystans(int w, char direction)
 {
     int distance;
@@ -203,9 +207,7 @@ int ElevatorData::dystans(int w, char direction)
 }
 
 
-
-//AKTUALIZACJA DANYCH WINDY
-void ElevatorData::aktualizuj(int i)
+void ElevatorData::aktualizuj()
 {
     if(cooldown==0)
     {
@@ -234,42 +236,64 @@ void ElevatorData::aktualizuj(int i)
     }
     else{cooldown=cooldown-1;}
 
-    wyswietl(i);
+    wyswietl();
 
 }
 
 
-
-bool czy_jedzie(int numerwindy, int numerpietra)
+ElevatorData::ElevatorData(int id)
 {
-    if(numerwindy==-1)
+    i=id;
+}
+
+
+int czy_jedzie(int elevator_number, int w)
+{
+
+    if(elevator_number==-1)
     {
         for(int i=0;i<ile_wind;i++)
         {
-            return windy[i].czy_jedzie(numerpietra);
+            if(windy[i].czy_jedzie(w))
+            {
+            return i;
+            }
         }
-        return false;
+        return -1;
     }
 
-    return windy[numerwindy].czy_jedzie(numerpietra);
+
+
+    if(windy[elevator_number].czy_jedzie(w))
+    {
+    return elevator_number;
+    }
+
+    return -1;
 
 }
 
 
-
-void wywolaj_winde(int numer_windy, int w, char direction)
+int wywolaj_winde(int elevator_number, int w, char direction)
 {
-    //JESLI PODANO NUMER KONKRETNEJ WINDY TO FUNKCJA NIE SPRAWDZA distance
-    if(numer_windy!=-1)
+
+    int is_going=czy_jedzie(elevator_number, w);
+    if(is_going!=-1)
     {
-        windy[numer_windy].dodaj_komende(w);
-        return;
+        return is_going;
+    }
+
+    //JESLI PODANO NUMER KONKRETNEJ WINDY TO FUNKCJA NIE SPRAWDZA distance
+    if(elevator_number!=-1)
+    {
+        windy[elevator_number].dodaj_komende(w);
+        return elevator_number;
     }
 
     if(ile_wind==1)
     {
         windy[0].dodaj_komende(w);
-        return;
+        return 0;
     }
 
     int minimum_distance;
@@ -294,4 +318,5 @@ void wywolaj_winde(int numer_windy, int w, char direction)
 
     windy[numer_optymalnej_windy].dodaj_komende(w);
 
+    return numer_optymalnej_windy;
 }

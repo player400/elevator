@@ -1,6 +1,9 @@
 #include "utilities.hpp"
 
 vector<ElevatorData>windy;
+vector<EntityData>byty;
+int ile_bytow=0;
+int ile_wind;
 
 void spij(int time)
 {

@@ -11,6 +11,7 @@ class ElevatorData
         int current_destination=0;
         int underway_status=0;
         int cooldown=0;
+        int i;
 
         enum is_stop_detected_
         {
@@ -30,53 +31,51 @@ class ElevatorData
 
         status_ status=STOP;
 
-
-
+        //METODA ZWRACA NAJNI¯SZE PIÊTRO Z VECTORA polecenia
         int minimum();
 
-
+        //METODA ZWRACA NAJWY¯SZE PIÊTRO Z VECTORA polecenia
         int maksimum();
 
+        //METODA DODAJE PIÊTRO w DO VECTORA polecenia
         void dodaj_polecenie(int w);
 
-
+        //METODA DODAJE PIÊTRO w DO VECTORA przystanki
         void dodaj_przystanek(int w);
 
+        //METODA WYPISUJE STATUS WINDY
+        void wyswietl();
 
-        void wyswietl(int i);
-
-
-
+        //METODA WYWO£YWANA PRZEZ METODÊ aktualizuj W MOMENCIE GDY WINDA WJE¯D¯A NA PIÊTRO, METODA TA MIN. SPRAWDZA CZY WINDA POWINNA SIÊ ZATRZYMAÆ
         void zmien_pietro();
-
 
     public:
 
+        //METODA ZWRACA true JEŒLI WINDA JEST NA PIÊTRZE w ORAZ STOI
+        bool czy_stoi(int w);
+
+        //METODA ZWRACA true JESLI WINDA JEDZIE JU¯ NA PIÊTRO w, ORAZ ZWRACA false JEŒLI NIE
         bool czy_jedzie(int w);
 
-
-
-
+        //METODA DODAJ¥CA POLECENIE LUB PRZYSTANEK DLA WINDY
         void dodaj_komende(int w);
 
-
-//FUNKCJA OBLICZAJACA JAK DELAKO WINDA MUSIALABY JECHAC ABY DOTRZEC NA PIETRO int==w Z UWZGLEDNIENIEM direction I INNYCH POLECEN DANEJ WINDY
+        //METODA OBLICZAJACA JAK DELAKO WINDA MUSIALABY JECHAC ABY DOTRZEC NA PIETRO w Z UWZGLEDNIENIEM direction I INNYCH POLECEN DANEJ WINDY
         int dystans(int w, char direction);
 
+        //AKTUALIZACJA DANYCH WINDY
+        void aktualizuj();
 
-
-
-
-
-//AKTUALIZACJA DANYCH WINDY
-        void aktualizuj(int i);
+        //METODA-KONSTRUKTOR KTÓRA USTAWIA ID WINDY (ZMIENNA i)
+        ElevatorData(int i);
 
 };
 
+//FUNKCJA ZWRACA NUMER WINDY JAD¥CEJ NA PIÊTRO w LUB ZWRACA -1 JEŒLI NA TO PIÊTRO NIE JEDZIE ¯ADNA WINDA.
+//JEŒLI elevator_number==-1 TO SPRAWDZI WSZYSTKIE WINDY, W PRZECIWNYM WYPADKU TYLKO JEDN¥
+int czy_jedzie(int elevator_number, int numerpietra);
 
-
-bool czy_jedzie(int numerwindy, int numerpietra);
-
-
-void wywolaj_winde(int numer_windy, int w, char direction);
+//FUNKCJA WYSY£A WINDÊ elevator_number NA PIÊTRO w, JEŒLI numer_windy==-1 TO WYSY£A NAJBLI¯SZ¥ WINDÊ (USTALANE ZA POMOC¥ METODY dystans W KLASIE ElevatorData)
+//I ZWRACA NUMER WYS£ANEJ WINDY
+int wywolaj_winde(int elevator_number, int w, char direction);
 
