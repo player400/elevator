@@ -52,7 +52,7 @@ int main()
     cout<<"CONTROLS:"<<endl<<endl;
     cout<<"To simulate calling an elevator from the hallway type: -1 <floor number> <direction>. Direction is either u - for going up or d - for going down."<<endl;
     cout<<"This command will call the nearest elevator to the floor chosen."<<endl<<endl;
-    cout<<"To simulate sending a specific elevator somewhere using buttons in the elevator type: <elevator number> <floor number>"<<endl<<endl;
+    cout<<"To simulate sending a specific elevator somewhere using buttons in the elevator type: <elevator number> <floor number>."<<endl<<endl;
     cout<<"Alternative way of controlling the elevators are Passengers."<<endl;
     cout<<"Passenger is an entity simulating an actual person going somewhere. First it will summon one of the elevators to it's floor of origin."<<endl;
     cout<<"As soon as the elevator arrives the passenger will automatically send it to the destination floor."<<endl;
