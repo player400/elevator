@@ -4,6 +4,7 @@ vector<ElevatorData>windy;
 vector<EntityData>byty;
 int ile_bytow=0;
 int ile_wind;
+//Buffer buffer;
 
 void spij(int time)
 {

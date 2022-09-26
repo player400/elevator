@@ -11,9 +11,18 @@
 #include <math.h>
 #include <chrono>
 #include <algorithm>
+
 #include "nbi.h"
 #include "elevatordata.hpp"
 #include "entitydata.hpp"
+#include "winx.h"
+#include "glad/glad.h"
+#include "buffer.hpp"
+#include "shader.hpp"
+#include "stb_image.h"
+#include "texture.hpp"
+#include "writing.hpp"
+
 
 using namespace std;
 
@@ -23,14 +32,15 @@ extern vector<EntityData>byty;
 extern int ile_wind;
 extern int ile_bytow;
 
-//FUNKCJA SPRAWDZA CZY STRUKTURA elements ZAWIERA LICZBÊ needle
+//extern Buffer buffer;
+//FUNKCJA SPRAWDZA CZY STRUKTURA elements ZAWIERA LICZBE needle
 template<class T>
 bool czy_zawiera(const T& elements, int needle)
 {
     return std::find(elements.begin(), elements.end(), needle) != elements.end();
 }
 
-//FUNKCJA ZATRZYMUJE WYWOLUJACY JA W¥TEK
+//FUNKCJA ZATRZYMUJE WYWOLUJACY JA WATEK
 void spij(int time);
 
 //void setCursor(int x, int y)
@@ -41,7 +51,7 @@ void spij(int time);
 //     SetConsoleCursorPosition (GetStdHandle (STD_OUTPUT_HANDLE), c);
 //}
 
-//FUNKCJA CZYŒCI TERMINAL
+//FUNKCJA CZYSCI TERMINAL
 void czyszczenie();
 
 
