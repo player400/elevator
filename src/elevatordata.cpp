@@ -16,6 +16,7 @@ int ElevatorData::maksimum()
     return *std::max_element(polecenia.begin(), polecenia.end());
 }
 
+
 void ElevatorData::dodaj_polecenie(int w)
 {
     polecenia.push_back(w);

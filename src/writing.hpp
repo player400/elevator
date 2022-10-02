@@ -1,4 +1,7 @@
 #pragma once
+#include "utilities.hpp"
+
+class Object;
 
 class Writing
 {
@@ -9,8 +12,12 @@ class Writing
         float u_chunk=0.0625;
         float v_chunk=0.1667;
 
-        Buffer buffer;
         Texture font;
+        Buffer buffer;
+
+        Object* reference_object_pointer;
+
+        float z;
 
         enum pos_
         {
@@ -58,7 +65,20 @@ class Writing
         void pisz(string text);
 
 
-        Writing(float height, float width, float vertical_position, string font_file_texture);
+        Writing(Object* reference_object_pointer_, float z_, float height, float width, float margin_top_, string font_file_name);
+
+
+        Writing(const Writing& writing) = delete;
+
+
+        Writing(Writing&& writing):font(move(writing.font)), buffer(move(writing.buffer))
+        {
+            u_chunk=writing.u_chunk;
+            v_chunk=writing.v_chunk;
+            z=writing.z;
+            character_list=writing.character_list;
+            reference_object_pointer=writing.reference_object_pointer;
+        }
 
 };
 

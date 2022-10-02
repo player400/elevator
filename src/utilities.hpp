@@ -21,7 +21,10 @@
 #include "shader.hpp"
 #include "stb_image.h"
 #include "texture.hpp"
-#include "writing.hpp"
+#include "texturebuffer.hpp"
+
+
+
 
 
 using namespace std;
@@ -31,6 +34,11 @@ extern vector<EntityData>byty;
 
 extern int ile_wind;
 extern int ile_bytow;
+
+extern int window_width;
+extern int window_height;
+
+
 
 //extern Buffer buffer;
 //FUNKCJA SPRAWDZA CZY STRUKTURA elements ZAWIERA LICZBE needle
@@ -54,4 +62,9 @@ void spij(int time);
 //FUNKCJA CZYSCI TERMINAL
 void czyszczenie();
 
+//FUNKCJA OTRZYMUJE SZEROKOSC W PIKSELACH I ZWRACA ULAMEK INFORMUJACY JAKA TO CZESC SZEROKOSCI CALEGO OKNA
+float szerokosc_bezwzgledna(float pixel_width);
+
+//FUNKCJA OTRZYMUJE WYSOKOSC W PIKSELACH I ZWRACA ULAMEK INFORMUJACY JAKA TO CZESC WYSOKOSCI CALEGO OKNA
+float wysokosc_bezwzgledna(float pixel_height);
 

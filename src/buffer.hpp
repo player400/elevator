@@ -28,10 +28,11 @@ class Buffer
             count=0;
         }
 
-        void vertex(float x, float y, float r, float g, float b, float u, float v)
+        void vertex(float x, float y, float z, float r, float g, float b, float u, float v)
         {
             buffer.push_back(x);
             buffer.push_back(y);
+            buffer.push_back(z);
             buffer.push_back(r);
             buffer.push_back(g);
             buffer.push_back(b);
@@ -53,9 +54,9 @@ class Buffer
 
 
             bind();
-            atrybut(0, 2, 7, 0);
-            atrybut(1, 3, 7, 2);
-            atrybut(2, 2, 7, 5);
+            atrybut(0, 3, 8, 0);
+            atrybut(1, 3, 8, 3);
+            atrybut(2, 2, 8, 6);
         }
 
         void rysuj()
@@ -64,4 +65,23 @@ class Buffer
             glDrawArrays(GL_TRIANGLES, 0, count);
         }
 
+        ~Buffer()
+        {
+            if(vao!=0)
+            {
+                glDeleteBuffers(1, &vbo);
+                glDeleteVertexArrays(1, &vao);
+            }
+        }
+
+        Buffer(const Buffer& buffer) = delete;
+
+        Buffer(const Buffer&& buffer):buffer(move(buffer.buffer))
+        {
+            count = buffer.count;
+            vao = buffer.vao;
+            vbo = buffer.vbo;
+            vao=0;
+            vbo=0;
+        }
 };

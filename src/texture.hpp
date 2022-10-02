@@ -9,7 +9,6 @@ class Texture
         GLuint texture;
 
     public:
-
         void bind()
         {
             glBindTexture(GL_TEXTURE_2D, texture);
@@ -29,7 +28,7 @@ class Texture
 
             if(!data)
             {
-                cout<<"TXT ERROR"<< path<<endl;
+                cout<<"TXT ERROR "<<path<<endl;
                 exit(3);
             }
 
@@ -39,4 +38,21 @@ class Texture
             stbi_image_free(data);
         }
 
+        ~Texture()
+        {
+            if(texture!=0)
+            {
+                glDeleteTextures(1, &texture);
+            }
+        }
+
+        Texture(const Texture& texture) = delete;
+
+        Texture(Texture&& texture)
+        {
+            width=texture.width;
+            height=texture.height;
+            this->texture=texture.texture;
+            texture.texture=0;
+        }
 };

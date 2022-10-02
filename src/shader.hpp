@@ -63,4 +63,22 @@ class ShaderProgram
             glDeleteShader(frag);
         }
 
+        ~ShaderProgram()
+        {
+            if(program!=0)
+            {
+                glDeleteProgram(program);
+            }
+        }
+
+        ShaderProgram(const ShaderProgram& shader) = delete;
+
+
+        ShaderProgram(ShaderProgram&& shader)
+        {
+            program=shader.program;
+            shader.program=0;
+        }
+
+
 };
