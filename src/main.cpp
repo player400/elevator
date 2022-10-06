@@ -18,6 +18,8 @@
 
 volatile bool wstrzymywanie=false;
 
+int menu(ShaderProgram& program);
+
 void sterowanie();
 
 int main()
@@ -25,7 +27,7 @@ int main()
 
 //    cout<<"Welcome to EURO ELEVATOR Simulator 2.0 - PASSENGER UPDATE!"<<endl;
 //    cout<<"Press 1 to launch the Sandbox Mode"<<endl;
-//    int modenumber=0;
+    int modenumber=0;
 //    char menu=nbi_std_input();
 //    switch (menu)
 //    {
@@ -90,8 +92,23 @@ int main()
     });
 
     winxSetKeybordEventHandle([](int state, int keycode){
-
     });
+
+    winxSetCursorEventHandle([](int x, int y){
+        x=x-window_width/2;
+        y=y-window_height/2;
+        y=y*(-1);
+        cursor_x=szerokosc_bezwzgledna(x);
+        cursor_y=wysokosc_bezwzgledna(y);
+    });
+
+    winxSetButtonEventHandle([](int state, int button){
+        if(button==WXB_LEFT)
+        {
+            left_mouse_state=state;
+        }
+    });
+
 
 
     ShaderProgram program(
@@ -132,52 +149,7 @@ int main()
     glClearColor(0, 0, 0, 1);
 
 
-    //stbi_set_flip_vertically_on_load(true);
-
-
-    Object basic("test.png", true, -2, nullptr);
-
-    Object& test_rectangle = basic.utworz_obiekt("font.png");
-    Object& inside_rectangle = test_rectangle.utworz_obiekt("test.png");
-
-
-
-    while(true)
-    {
-
-        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-
-        test_rectangle.inicjalizuj(Object::CENTER, 0, wysokosc_bezwzgledna(400), szerokosc_bezwzgledna(700), wysokosc_bezwzgledna(400));
-        inside_rectangle.inicjalizuj(Object::LEFT, 0, wysokosc_bezwzgledna(100), szerokosc_bezwzgledna(350), wysokosc_bezwzgledna(200));
-
-        Writing& writing=basic.utworz_tekst(wysokosc_bezwzgledna(60), szerokosc_bezwzgledna(50), 0, "font.png");
-
-        writing.pisz("Hello world!");
-        writing.pisz("I'm a nice little window");
-        writing.kolejna_linia();
-        writing.zmien_pozycjonowanie();
-        writing.pisz("winx is my god");
-        writing.zmien_margines(0.3);
-        writing.pisz("Bill Gates has brought me to life");
-        writing.zmien_pozycjonowanie();
-        writing.zmien_rozmiar(wysokosc_bezwzgledna(90), szerokosc_bezwzgledna(75));
-        writing.pisz("winx - Powered by WinAPI");
-
-//        czyszczenie();
-//        cout<<"LINIA"<<endl;
-//        exit(1);
-
-
-        program.uzyj();
-
-        basic.rysuj();
-
-
-        winxSwapBuffers();
-		winxPollEvents();
-    }
-
-
+    modenumber=menu(program);
 
 
     double timer = winxGetTime();
@@ -210,15 +182,89 @@ int main()
 
         glClear(GL_COLOR_BUFFER_BIT);
         program.uzyj();
-//        texture.bind();
-       // buffer.rysuj();
-//        writing.rysuj();
+
 
         winxSwapBuffers();
 		winxPollEvents();
     }
     return 0;
 }
+
+
+int menu(ShaderProgram& program)
+{
+
+    TextureBuffer white_font("white_font.png");
+    TextureBuffer black_font("black_font.png");
+    TextureBuffer white("white.png");
+    TextureBuffer black("black.png");
+    TextureBuffer up("up.png");
+    TextureBuffer down("down.png");
+
+
+    Object basic(black, true, -2, nullptr);
+
+    Object& menu_div = basic.utworz_obiekt(black);
+        Object& sandbox_mode_button = menu_div.utworz_obiekt(white);
+        Object& down_sign = menu_div.utworz_obiekt(down);
+        Object& up_sign = menu_div.utworz_obiekt(up);
+
+
+
+    while(true)
+    {
+
+        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+
+        Writing& welcome_sign = basic.utworz_tekst(wysokosc_bezwzgledna(50), szerokosc_bezwzgledna(30), (1 - wysokosc_bezwzgledna(300))/2.0 - wysokosc_bezwzgledna(25), white_font);
+            welcome_sign.pisz("Welcome to");
+            welcome_sign.kolejna_linia();
+            welcome_sign.zmien_rozmiar(wysokosc_bezwzgledna(100), szerokosc_bezwzgledna(60));
+            welcome_sign.pisz("EURO ELEVATOR Simulator!");
+            welcome_sign.zmien_rozmiar(wysokosc_bezwzgledna(25), szerokosc_bezwzgledna(15));
+            welcome_sign.kolejna_linia();
+            welcome_sign.pisz("Release 2.0");
+
+
+        menu_div.inicjalizuj(Object::CENTER, 0, 1 - wysokosc_bezwzgledna(50), 2, wysokosc_bezwzgledna(100));
+            down_sign.inicjalizuj(Object::LEFT, 0, 0, szerokosc_bezwzgledna(100), wysokosc_bezwzgledna(100));
+            up_sign.inicjalizuj(Object::RIGHT, 0, 0, szerokosc_bezwzgledna(100), wysokosc_bezwzgledna(100));
+            sandbox_mode_button.inicjalizuj(Object::CENTER, 0, 0, szerokosc_bezwzgledna(700), wysokosc_bezwzgledna(100));
+                Writing& sandbox_mode_button_text = sandbox_mode_button.utworz_tekst(wysokosc_bezwzgledna(50), szerokosc_bezwzgledna(30), wysokosc_bezwzgledna(25), black_font);
+                    sandbox_mode_button_text.pisz("SANDBOX MODE");
+
+
+        if(sandbox_mode_button.czy_wcisniety())
+        {
+            return 1;
+            break;
+        }
+
+
+        program.uzyj();
+
+        basic.rysuj();
+
+
+        white_font.rysuj();
+        black_font.rysuj();
+        white.rysuj();
+        black.rysuj();
+        up.rysuj();
+        down.rysuj();
+
+
+        winxSwapBuffers();
+		winxPollEvents();
+
+		czyszczenie();
+		cout<<cursor_x<<endl;
+		cout<<cursor_y<<endl;
+		cout<<left_mouse_state<<endl;
+    }
+}
+
 
 void sterowanie()
 {

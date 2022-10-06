@@ -16,6 +16,8 @@ class TextureBuffer
 
             buffer.wyslij();
             buffer.rysuj();
+
+            buffer.czysc();
         }
 
         void ustaw_vertexy(float x1, float y1, float x2, float y2, float z, float u1, float v1, float u2, float v2)
@@ -29,7 +31,7 @@ class TextureBuffer
             buffer.vertex(x2, y2, z, 0, 1, 0, u2, v2);
         }
 
-        TextureBuffer(string& texture_file_name):texture(texture_file_name)
+        TextureBuffer(string texture_file_name):texture(texture_file_name)
         {
             return;
         }

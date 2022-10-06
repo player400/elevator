@@ -2,33 +2,32 @@
 #include "objects.hpp"
 
 
+bool Object::czy_wcisniety()
+{
+    if(left_mouse_state==1)
+    {
+        if(cursor_x>x1 && cursor_x<x2 && cursor_y<y1 && cursor_y>y2)
+        {
+
+                        //exit(17);
+
+            return true;
+        }
+    }
+    return false;
+}
+
+
 void Object::rysuj()
 {
 
-
-    buffer.vertex(x1, y1, z, 0, 0, 1, 0, 0);
-    buffer.vertex(x2, y2, z, 0, 1, 0, 1, 1);
-    buffer.vertex(x1, y2, z, 1, 0, 0, 0, 1);
-
-    buffer.vertex(x1, y1, z, 0, 0, 1, 0, 0);
-    buffer.vertex(x2, y1, z, 1, 0, 0, 1, 0);
-    buffer.vertex(x2, y2, z, 0, 1, 0, 1, 1);
-
-    buffer.wyslij();
-
-    texture.bind();
-    buffer.rysuj();
-    //buffer.czysc();
+    texturebuffer.ustaw_vertexy(x1, y1, x2, y2, z, 0, 0, 1, 1);
 
     for(auto& child_object : child_objects)
     {
         child_object.rysuj();
     }
 
-    for(auto& writing : writings)
-    {
-        writing.rysuj();
-    }
 }
 
 void Object::inicjalizuj(pos_ pos, float margin_, float margin_top_, float width_, float height_)
@@ -71,19 +70,19 @@ void Object::inicjalizuj(pos_ pos, float margin_, float margin_top_, float width
 }
 
 
-Object& Object::utworz_obiekt(string texture_file_name)
+Object& Object::utworz_obiekt(TextureBuffer& texture_buffer_)
 {
-    return child_objects.emplace_back(texture_file_name, false, z-0.1, this);
+    return child_objects.emplace_back(texture_buffer_, false, z-0.1, this);
 }
 
 
-Writing& Object::utworz_tekst(float height, float width, float margin_top, string font_file_name)
+Writing& Object::utworz_tekst(float height, float width, float margin_top, TextureBuffer& texture_buffer_)
 {
-    return writings.emplace_back(this, z-0.1, height, width, margin_top, font_file_name);
+    return writings.emplace_back(this, z-0.1, height, width, margin_top, texture_buffer_);
 }
 
 
-Object::Object(string texture_file_name, bool is_first_object, float z_, Object* reference_object_pointer_):texture(texture_file_name)
+Object::Object(TextureBuffer& texture_buffer_, bool is_first_object, float z_, Object* reference_object_pointer_):texturebuffer(texture_buffer_)
 {
     if(is_first_object)
     {
@@ -97,4 +96,5 @@ Object::Object(string texture_file_name, bool is_first_object, float z_, Object*
         z=z_;
         reference_object_pointer=reference_object_pointer_;
     }
+
 }

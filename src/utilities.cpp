@@ -9,6 +9,10 @@ int ile_wind;
 int window_width;
 int window_height;
 
+float cursor_x;
+float cursor_y;
+
+int left_mouse_state;
 
 void spij(int time)
 {

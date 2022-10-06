@@ -12,8 +12,7 @@ class Writing
         float u_chunk=0.0625;
         float v_chunk=0.1667;
 
-        Texture font;
-        Buffer buffer;
+        TextureBuffer& texturebuffer;
 
         Object* reference_object_pointer;
 
@@ -53,7 +52,7 @@ class Writing
 
         void kolejna_linia();
 
-        void rysuj();
+       // void rysuj();
 
         void zmien_pozycjonowanie();
 
@@ -65,13 +64,13 @@ class Writing
         void pisz(string text);
 
 
-        Writing(Object* reference_object_pointer_, float z_, float height, float width, float margin_top_, string font_file_name);
+        Writing(Object* reference_object_pointer_, float z_, float height, float width, float margin_top_, TextureBuffer& texture_buffer_);
 
 
         Writing(const Writing& writing) = delete;
 
 
-        Writing(Writing&& writing):font(move(writing.font)), buffer(move(writing.buffer))
+        Writing(Writing&& writing):texturebuffer(writing.texturebuffer)
         {
             u_chunk=writing.u_chunk;
             v_chunk=writing.v_chunk;

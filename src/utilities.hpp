@@ -38,6 +38,11 @@ extern int ile_bytow;
 extern int window_width;
 extern int window_height;
 
+extern float cursor_x;
+extern float cursor_y;
+
+
+extern int left_mouse_state;
 
 
 //extern Buffer buffer;

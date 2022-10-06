@@ -9,12 +9,10 @@ class Object
 {
     private:
 
-        vector<Object>child_objects;
-        vector<Writing>writings;
+        list<Object>child_objects;
+        list<Writing>writings;
 
-        Texture texture;
-
-        Buffer buffer;
+        TextureBuffer& texturebuffer;
 
         float margin=0;
         float margin_top=0;
@@ -37,24 +35,31 @@ class Object
         float x1, y1, x2, y2;
 
 
+        bool czy_wcisniety();
+
+
         void rysuj();
 
 
         void inicjalizuj(pos_ pos, float margin_, float margin_top_, float width_, float height_);
 
 
-        Object& utworz_obiekt(string texture_file_name);
+        Object& utworz_obiekt(TextureBuffer& texture_buffer_);
 
 
-        Writing& utworz_tekst(float height, float width, float margin_top, string font_file_name);
+        Writing& utworz_tekst(float height, float width, float margin_top, TextureBuffer& texture_buffer_);
 
 
-        Object(string texture_file_name, bool is_first_object, float z_index_, Object* reference_object_pointer);
+        Object(TextureBuffer& texture_buffer_, bool is_first_object, float z_index_, Object* reference_object_pointer);
 
 
         Object(const Object& object) = delete;
 
-        Object(Object&& object):child_objects(move(object.child_objects)), texture(move(object.texture)), buffer(move(object.buffer))
+        ~Object() {
+            cout << "~Object\n";
+        }
+
+        Object(Object&& object):child_objects(move(object.child_objects)), writings(move(object.writings)), texturebuffer(object.texturebuffer)
         {
             margin=object.margin;
             margin_top=object.margin_top;
