@@ -81,6 +81,10 @@ void Writing::kolejna_linia()
 //    buffer.rysuj();
 //    buffer.czysc();
 //}
+void Writing::nadpisz_z(float z_)
+{
+    z=z_;
+}
 
 void Writing::pisz(string text)
 {

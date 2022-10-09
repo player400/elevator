@@ -2,33 +2,41 @@
 #include "objects.hpp"
 
 
+Object& Object::utworz_okienko(TextureBuffer& texture_buffer_, Object* ref_pointer)
+{
+    return popup_windows.emplace_back(texture_buffer_, false, -0.6, ref_pointer);
+}
+
+
+void Object::aktywuj_okienko()
+{
+    is_popup_active=true;
+}
+
+
+void Object::dezaktywuj_okienko()
+{
+    is_popup_active=false;
+}
+
+
 bool Object::czy_wcisniety()
 {
     if(left_mouse_state==1)
     {
+//        czyszczenie();
+//        cout<<x1<<" "<<cursor_x<<" "<<x2<<endl;
+//        cout<<y2<<" "<<cursor_y<<" "<<y1<<endl;
+//        exit(9);
+
         if(cursor_x>x1 && cursor_x<x2 && cursor_y<y1 && cursor_y>y2)
         {
-
-                        //exit(17);
-
             return true;
         }
     }
     return false;
 }
 
-
-void Object::rysuj()
-{
-
-    texturebuffer.ustaw_vertexy(x1, y1, x2, y2, z, 0, 0, 1, 1);
-
-    for(auto& child_object : child_objects)
-    {
-        child_object.rysuj();
-    }
-
-}
 
 void Object::inicjalizuj(pos_ pos, float margin_, float margin_top_, float width_, float height_)
 {
@@ -70,6 +78,28 @@ void Object::inicjalizuj(pos_ pos, float margin_, float margin_top_, float width
 }
 
 
+void Object::rysuj()
+{
+
+    texturebuffer.ustaw_vertexy(x1, y1, x2, y2, z, 0, 0, 1, 1);
+
+    for(auto& child_object : child_objects)
+    {
+        child_object.rysuj();
+    }
+
+    if(is_popup_active)
+    {
+        //popup_window(popup_windows);
+        for(auto& popup_window : popup_windows)
+        {
+            popup_window.rysuj();
+        }
+    }
+
+}
+
+
 Object& Object::utworz_obiekt(TextureBuffer& texture_buffer_)
 {
     return child_objects.emplace_back(texture_buffer_, false, z-0.1, this);
@@ -79,6 +109,17 @@ Object& Object::utworz_obiekt(TextureBuffer& texture_buffer_)
 Writing& Object::utworz_tekst(float height, float width, float margin_top, TextureBuffer& texture_buffer_)
 {
     return writings.emplace_back(this, z-0.1, height, width, margin_top, texture_buffer_);
+}
+
+
+void Object::nadpisz_z(float z_)
+{
+    z=z_;
+
+    for(auto& child_object : child_objects)
+    {
+        child_object.nadpisz_z(z-0.1);
+    }
 }
 
 

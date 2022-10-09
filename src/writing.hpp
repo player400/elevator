@@ -60,6 +60,8 @@ class Writing
 
         void zmien_rozmiar(float new_height, float new_width);
 
+        void nadpisz_z(float z_);
+
 
         void pisz(string text);
 

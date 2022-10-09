@@ -23,7 +23,12 @@ class Object
 
         float z;
 
+        list<Object>popup_windows;
+        bool is_popup_active=false;
+
     public:
+
+
 
         enum pos_
         {
@@ -35,19 +40,31 @@ class Object
         float x1, y1, x2, y2;
 
 
+        Object& utworz_okienko(TextureBuffer& texturebuffer, Object* ref_pointer);
+
+
+        void aktywuj_okienko();
+
+
+        void dezaktywuj_okienko();
+
+
         bool czy_wcisniety();
 
 
-        void rysuj();
-
-
         void inicjalizuj(pos_ pos, float margin_, float margin_top_, float width_, float height_);
+
+
+        void rysuj();
 
 
         Object& utworz_obiekt(TextureBuffer& texture_buffer_);
 
 
         Writing& utworz_tekst(float height, float width, float margin_top, TextureBuffer& texture_buffer_);
+
+
+        void nadpisz_z(float z_);
 
 
         Object(TextureBuffer& texture_buffer_, bool is_first_object, float z_index_, Object* reference_object_pointer);
@@ -59,7 +76,7 @@ class Object
             cout << "~Object\n";
         }
 
-        Object(Object&& object):child_objects(move(object.child_objects)), writings(move(object.writings)), texturebuffer(object.texturebuffer)
+        Object(Object&& object):child_objects(move(object.child_objects)), writings(move(object.writings)), popup_windows(move(object.popup_windows)),texturebuffer(object.texturebuffer)
         {
             margin=object.margin;
             margin_top=object.margin_top;
@@ -67,6 +84,7 @@ class Object
             z=object.z;
             height=object.height;
             reference_object_pointer=object.reference_object_pointer;
+            is_popup_active=object.is_popup_active;
             x1=object.x1;
             y1=object.y1;
             x2=object.x2;

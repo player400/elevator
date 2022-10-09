@@ -11,6 +11,10 @@
 #include <math.h>
 #include <chrono>
 #include <algorithm>
+#include <functional>
+#include <cstdlib>
+#include <string>
+#include <sstream>
 
 #include "nbi.h"
 #include "elevatordata.hpp"
@@ -42,7 +46,14 @@ extern float cursor_x;
 extern float cursor_y;
 
 
+extern int number_keys_state[10];
+
+extern int enter_key_state;
+
+extern int backspace_key_state;
+
 extern int left_mouse_state;
+
 
 
 //extern Buffer buffer;
@@ -72,4 +83,8 @@ float szerokosc_bezwzgledna(float pixel_width);
 
 //FUNKCJA OTRZYMUJE WYSOKOSC W PIKSELACH I ZWRACA ULAMEK INFORMUJACY JAKA TO CZESC WYSOKOSCI CALEGO OKNA
 float wysokosc_bezwzgledna(float pixel_height);
+
+//FUNKCJA OTRZYMUJE CYFRE I ZWRACA ZNAK JEJ ODPOWIADAJACY
+char cyfra_na_znak(int number);
+
 

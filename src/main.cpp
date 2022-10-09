@@ -20,6 +20,8 @@ volatile bool wstrzymywanie=false;
 
 int menu(ShaderProgram& program);
 
+int wybor_ilosci_wind(ShaderProgram& program);
+
 void sterowanie();
 
 int main()
@@ -48,13 +50,6 @@ int main()
 //
 //    cin>>ile_wind;
 
-    ile_wind=2;
-
-    for(int i=0;i<ile_wind;i++)
-    {
-        ElevatorData pustawinda(i);
-        windy.push_back(pustawinda);
-    }
 
     czyszczenie();
 
@@ -67,8 +62,8 @@ int main()
     winxHint(WINX_HINT_OPENGL_CORE, true);
     winxHint(WINX_HINT_VSYNC, WINX_VSYNC_ENABLED);
 
-    window_width=1000;
-    window_height=600;
+    window_width=1500;
+    window_height=900;
 
     if(!winxOpen(window_width, window_height, "EURO ELEVATOR Simulator / GuI / 2.0"))
     {
@@ -92,14 +87,33 @@ int main()
     });
 
     winxSetKeybordEventHandle([](int state, int keycode){
+        if(keycode==WXK_ENTER)
+        {
+            enter_key_state=state;
+        }
+        if(keycode==WXK_BACK)
+        {
+
+            backspace_key_state=state;
+
+        }
+        else
+        {
+            keycode=keycode-48;
+            number_keys_state[keycode]=state;
+        }
     });
 
     winxSetCursorEventHandle([](int x, int y){
+        y=y+((float)y/(window_height-42))*42;
+        x=x+((float)x/(window_width-17))*17;
+        czyszczenie();
+        //cout<<x<<" "<<y<<endl;
         x=x-window_width/2;
         y=y-window_height/2;
         y=y*(-1);
-        cursor_x=szerokosc_bezwzgledna(x);
-        cursor_y=wysokosc_bezwzgledna(y);
+        cursor_x=szerokosc_bezwzgledna(x)*2;
+        cursor_y=wysokosc_bezwzgledna(y)*2;
     });
 
     winxSetButtonEventHandle([](int state, int button){
@@ -150,6 +164,15 @@ int main()
 
 
     modenumber=menu(program);
+
+    ile_wind=wybor_ilosci_wind(program);
+
+
+    for(int i=0;i<ile_wind;i++)
+    {
+        ElevatorData pustawinda(i);
+        windy.push_back(pustawinda);
+    }
 
 
     double timer = winxGetTime();
@@ -208,14 +231,15 @@ int menu(ShaderProgram& program)
         Object& sandbox_mode_button = menu_div.utworz_obiekt(white);
         Object& down_sign = menu_div.utworz_obiekt(down);
         Object& up_sign = menu_div.utworz_obiekt(up);
-
-
+            Object& test_window = up_sign.utworz_okienko(white, &basic);
+                Object& inside_window = test_window.utworz_obiekt(black);
 
     while(true)
     {
 
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
+        program.uzyj();
 
         Writing& welcome_sign = basic.utworz_tekst(wysokosc_bezwzgledna(50), szerokosc_bezwzgledna(30), (1 - wysokosc_bezwzgledna(300))/2.0 - wysokosc_bezwzgledna(25), white_font);
             welcome_sign.pisz("Welcome to");
@@ -230,6 +254,8 @@ int menu(ShaderProgram& program)
         menu_div.inicjalizuj(Object::CENTER, 0, 1 - wysokosc_bezwzgledna(50), 2, wysokosc_bezwzgledna(100));
             down_sign.inicjalizuj(Object::LEFT, 0, 0, szerokosc_bezwzgledna(100), wysokosc_bezwzgledna(100));
             up_sign.inicjalizuj(Object::RIGHT, 0, 0, szerokosc_bezwzgledna(100), wysokosc_bezwzgledna(100));
+                test_window.inicjalizuj(Object::CENTER, 0, 0.5, 1, 1);
+                    inside_window.inicjalizuj(Object::CENTER, 0, 0.25, 0.5, 0.5);
             sandbox_mode_button.inicjalizuj(Object::CENTER, 0, 0, szerokosc_bezwzgledna(700), wysokosc_bezwzgledna(100));
                 Writing& sandbox_mode_button_text = sandbox_mode_button.utworz_tekst(wysokosc_bezwzgledna(50), szerokosc_bezwzgledna(30), wysokosc_bezwzgledna(25), black_font);
                     sandbox_mode_button_text.pisz("SANDBOX MODE");
@@ -238,11 +264,15 @@ int menu(ShaderProgram& program)
         if(sandbox_mode_button.czy_wcisniety())
         {
             return 1;
-            break;
+        }
+
+        if(up_sign.czy_wcisniety())
+        {
+            up_sign.aktywuj_okienko();
         }
 
 
-        program.uzyj();
+
 
         basic.rysuj();
 
@@ -257,14 +287,114 @@ int menu(ShaderProgram& program)
 
         winxSwapBuffers();
 		winxPollEvents();
-
-		czyszczenie();
-		cout<<cursor_x<<endl;
-		cout<<cursor_y<<endl;
-		cout<<left_mouse_state<<endl;
+//		czyszczenie();
+//		cout<<cursor_x<<" "<<cursor_y<<endl;
     }
+
 }
 
+int wybor_ilosci_wind(ShaderProgram& program)
+{
+
+    int elevator_number=2;
+    string text_input="";
+
+    TextureBuffer white_font("white_font.png");
+    TextureBuffer black_font("black_font.png");
+    TextureBuffer white("white.png");
+    TextureBuffer black("black.png");
+    TextureBuffer down("down.png");
+
+    Object basic(black, true, -2, nullptr);
+
+    Object& text_box = basic.utworz_obiekt(white);
+    Object& start_button = basic.utworz_obiekt(down);
+
+    while(true)
+    {
+
+        program.uzyj();
+
+
+        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+        Writing& instruction = basic.utworz_tekst(wysokosc_bezwzgledna(50), szerokosc_bezwzgledna(30), (1 - wysokosc_bezwzgledna(300))/2.0 - wysokosc_bezwzgledna(25), white_font);
+            instruction.pisz("SANDBOX MODE");
+            instruction.kolejna_linia();
+            instruction.zmien_margines(0.1);
+            instruction.zmien_pozycjonowanie();
+            instruction.zmien_rozmiar(wysokosc_bezwzgledna(30), szerokosc_bezwzgledna(18));
+            instruction.pisz("To simulate calling an elevator from the hallway type: -1 <floor number> <direction>. Direction is either u - for going up or d - for going down.");
+            instruction.pisz("This command will call the nearest elevator to the floor chosen.");
+            instruction.kolejna_linia();
+            instruction.pisz("To simulate sending a specific elevator somewhere using buttons in the elevator type: <elevator number> <floor number>.");
+            instruction.kolejna_linia();
+            instruction.kolejna_linia();
+            instruction.pisz("Alternative way of controlling the elevators in the Sandbox Mode are Passengers.");
+            instruction.kolejna_linia();
+            instruction.pisz("Passenger is an entity simulating an actual person using the elevator. First it will summon one of the elevators to it's floor of origin.");
+            instruction.pisz("As soon as the elevator arrives the passenger will automatically send it to the destination floor.");
+            instruction.kolejna_linia();
+            instruction.pisz("To create a new passenger type: -2 <floor of origin> <destination floor>");
+            instruction.kolejna_linia();
+            instruction.kolejna_linia();
+            instruction.zmien_rozmiar(wysokosc_bezwzgledna(40), szerokosc_bezwzgledna(24));
+            instruction.pisz("To start type the number of elevators you want to simulate and press Enter or click the white arrow below. Have fun!");
+            instruction.zmien_rozmiar(wysokosc_bezwzgledna(25), szerokosc_bezwzgledna(15));
+            instruction.pisz("Default elevator number is 2. If you type nothing and start, the simulation will launch with 2 elevators.");
+
+
+        text_box.inicjalizuj(Object::CENTER, 0, 2 - wysokosc_bezwzgledna(600), 2, wysokosc_bezwzgledna(100));
+            Writing& text_box_content = text_box.utworz_tekst(wysokosc_bezwzgledna(60), szerokosc_bezwzgledna(33), wysokosc_bezwzgledna(20), black_font);
+                text_box_content.pisz(text_input);
+
+        start_button.inicjalizuj(Object::CENTER, 0, 2 - wysokosc_bezwzgledna(300), szerokosc_bezwzgledna(150), wysokosc_bezwzgledna(150));
+
+
+        if(start_button.czy_wcisniety() || enter_key_state)
+        {
+            stringstream ss;
+
+            ss<<text_input;
+
+            ss>>elevator_number;
+
+            return elevator_number;
+        }
+
+        for(int g=0; g<10; g++)
+        {
+            if(number_keys_state[g])
+            {
+                text_input.push_back(cyfra_na_znak(g));
+                spij(100);
+            }
+        }
+
+        if(backspace_key_state)
+        {
+            if(text_input.size()>0)
+            {
+                text_input.pop_back();
+            }
+        }
+
+
+        basic.rysuj();
+
+
+        white_font.rysuj();
+        black_font.rysuj();
+        white.rysuj();
+        black.rysuj();
+        down.rysuj();
+
+
+        winxSwapBuffers();
+		winxPollEvents();
+    }
+
+}
 
 void sterowanie()
 {
