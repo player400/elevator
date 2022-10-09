@@ -31,22 +31,22 @@ class ElevatorData
 
         status_ status=STOP;
 
-        //METODA ZWRACA NAJNI¯SZE PIÊTRO Z VECTORA polecenia
+        //METODA ZWRACA NAJNIZSZE PIÊTRO Z VECTORA polecenia
         int minimum();
 
-        //METODA ZWRACA NAJWY¯SZE PIÊTRO Z VECTORA polecenia
+        //METODA ZWRACA NAJWYZSZE PIÊTRO Z VECTORA polecenia
         int maksimum();
 
-        //METODA DODAJE PIÊTRO w DO VECTORA polecenia
+        //METODA DODAJE PIETRO w DO VECTORA polecenia
         void dodaj_polecenie(int w);
 
-        //METODA DODAJE PIÊTRO w DO VECTORA przystanki
+        //METODA DODAJE PIETRO w DO VECTORA przystanki
         void dodaj_przystanek(int w);
 
         //METODA WYPISUJE STATUS WINDY
         void wyswietl();
 
-        //METODA WYWO£YWANA PRZEZ METODÊ aktualizuj W MOMENCIE GDY WINDA WJE¯D¯A NA PIÊTRO, METODA TA MIN. SPRAWDZA CZY WINDA POWINNA SIÊ ZATRZYMAÆ
+        //METODA WYWO£YWANA PRZEZ METODE aktualizuj W MOMENCIE GDY WINDA WJEZDZA NA PIÊTRO, METODA TA MIN. SPRAWDZA CZY WINDA POWINNA SIÊ ZATRZYMAÆ
         void zmien_pietro();
 
     public:
@@ -54,7 +54,7 @@ class ElevatorData
         //METODA ZWRACA true JEŒLI WINDA JEST NA PIÊTRZE w ORAZ STOI
         bool czy_stoi(int w);
 
-        //METODA ZWRACA true JESLI WINDA JEDZIE JU¯ NA PIÊTRO w, ORAZ ZWRACA false JEŒLI NIE
+        //METODA ZWRACA true JESLI WINDA JEDZIE JUZ NA PIÊTRO w, ORAZ ZWRACA false JEŒLI NIE
         bool czy_jedzie(int w);
 
         //METODA DODAJ¥CA POLECENIE LUB PRZYSTANEK DLA WINDY
@@ -72,7 +72,7 @@ class ElevatorData
 };
 
 //FUNKCJA ZWRACA NUMER WINDY JAD¥CEJ NA PIÊTRO w LUB ZWRACA -1 JEŒLI NA TO PIÊTRO NIE JEDZIE ¯ADNA WINDA.
-//JEŒLI elevator_number==-1 TO SPRAWDZI WSZYSTKIE WINDY, W PRZECIWNYM WYPADKU TYLKO JEDN¥
+//JEŒLI elevator_number==-1 TO SPRAWDZI WSZYSTKIE WINDY, W PRZECIWNYM WYPADKU TYLKO JEDNA
 int czy_jedzie(int elevator_number, int numerpietra);
 
 //FUNKCJA WYSY£A WINDÊ elevator_number NA PIÊTRO w, JEŒLI numer_windy==-1 TO WYSY£A NAJBLI¯SZ¥ WINDÊ (USTALANE ZA POMOC¥ METODY dystans W KLASIE ElevatorData)

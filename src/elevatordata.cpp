@@ -16,6 +16,7 @@ int ElevatorData::maksimum()
     return *std::max_element(polecenia.begin(), polecenia.end());
 }
 
+
 void ElevatorData::dodaj_polecenie(int w)
 {
     polecenia.push_back(w);
@@ -189,7 +190,7 @@ int ElevatorData::dystans(int w, char direction)
         distance=abs(last_floor_number-polecenia[0]);
     }
 
-    for(int j=0;j<(polecenia.size()-1);j++)
+    for(size_t j=0;j<(polecenia.size()-1);j++)
     {
         if((polecenia[j]<w && polecenia[j+1]>w && direction=='u') || (polecenia[j]>w && polecenia[j+1]<w && direction=='d'))
         {

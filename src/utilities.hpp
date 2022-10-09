@@ -11,9 +11,25 @@
 #include <math.h>
 #include <chrono>
 #include <algorithm>
+#include <functional>
+#include <cstdlib>
+#include <string>
+#include <sstream>
+
 #include "nbi.h"
 #include "elevatordata.hpp"
 #include "entitydata.hpp"
+#include "winx.h"
+#include "glad/glad.h"
+#include "buffer.hpp"
+#include "shader.hpp"
+#include "stb_image.h"
+#include "texture.hpp"
+#include "texturebuffer.hpp"
+
+
+
+
 
 using namespace std;
 
@@ -23,14 +39,32 @@ extern vector<EntityData>byty;
 extern int ile_wind;
 extern int ile_bytow;
 
-//FUNKCJA SPRAWDZA CZY STRUKTURA elements ZAWIERA LICZBÊ needle
+extern int window_width;
+extern int window_height;
+
+extern float cursor_x;
+extern float cursor_y;
+
+
+extern int number_keys_state[10];
+
+extern int enter_key_state;
+
+extern int backspace_key_state;
+
+extern int left_mouse_state;
+
+
+
+//extern Buffer buffer;
+//FUNKCJA SPRAWDZA CZY STRUKTURA elements ZAWIERA LICZBE needle
 template<class T>
 bool czy_zawiera(const T& elements, int needle)
 {
     return std::find(elements.begin(), elements.end(), needle) != elements.end();
 }
 
-//FUNKCJA ZATRZYMUJE WYWOLUJACY JA W¥TEK
+//FUNKCJA ZATRZYMUJE WYWOLUJACY JA WATEK
 void spij(int time);
 
 //void setCursor(int x, int y)
@@ -41,7 +75,16 @@ void spij(int time);
 //     SetConsoleCursorPosition (GetStdHandle (STD_OUTPUT_HANDLE), c);
 //}
 
-//FUNKCJA CZYŒCI TERMINAL
+//FUNKCJA CZYSCI TERMINAL
 void czyszczenie();
+
+//FUNKCJA OTRZYMUJE SZEROKOSC W PIKSELACH I ZWRACA ULAMEK INFORMUJACY JAKA TO CZESC SZEROKOSCI CALEGO OKNA
+float szerokosc_bezwzgledna(float pixel_width);
+
+//FUNKCJA OTRZYMUJE WYSOKOSC W PIKSELACH I ZWRACA ULAMEK INFORMUJACY JAKA TO CZESC WYSOKOSCI CALEGO OKNA
+float wysokosc_bezwzgledna(float pixel_height);
+
+//FUNKCJA OTRZYMUJE CYFRE I ZWRACA ZNAK JEJ ODPOWIADAJACY
+char cyfra_na_znak(int number);
 
 
