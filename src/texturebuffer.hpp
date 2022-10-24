@@ -13,6 +13,7 @@ class TextureBuffer
         void rysuj()
         {
             texture.bind();
+            //program->uzyj();
 
             buffer.wyslij();
             buffer.rysuj();

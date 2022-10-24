@@ -8,9 +8,9 @@ class Buffer
         GLuint vao, vbo;
         int count=0;
 
-        void atrybut(int index, int count, int stride, long offset)
+        void atrybut(int index, int count_, int stride, long offset)
         {
-            glVertexAttribPointer(index, count, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*) (offset * sizeof(float)));
+            glVertexAttribPointer(index, count_, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*) (offset * sizeof(float)));
             glEnableVertexAttribArray(index);
         }
 
@@ -63,6 +63,16 @@ class Buffer
         {
             bind();
             glDrawArrays(GL_TRIANGLES, 0, count);
+
+//            for(int i=0; i<buffer.size(); i++)
+//            {
+//                //czyszczenie();
+//                if(i%8==2)
+//                {
+//                    cout<<buffer[i]<<endl;
+//                }
+//
+//            }
         }
 
         ~Buffer()
@@ -76,12 +86,12 @@ class Buffer
 
         Buffer(const Buffer& buffer) = delete;
 
-        Buffer(const Buffer&& buffer):buffer(move(buffer.buffer))
+        Buffer(Buffer&& other):buffer(move(other.buffer))
         {
-            count = buffer.count;
-            vao = buffer.vao;
-            vbo = buffer.vbo;
-            vao=0;
-            vbo=0;
+            count = other.count;
+            vao = other.vao;
+            vbo = other.vbo;
+            other.vao=0;
+            other.vbo=0;
         }
 };

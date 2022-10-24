@@ -26,6 +26,24 @@ class Writing
 
         pos_ pos;
 
+        struct letter_vertex
+        {
+            float u1;
+            float v1;
+
+            float u2;
+            float v2;
+
+
+            float x1;
+            float y1;
+
+            float x2;
+            float y2;
+        };
+
+        vector<letter_vertex>verteksy;
+
         float height, width, margin_top, margin_left;
 
         float vertical_position;
@@ -44,7 +62,7 @@ class Writing
 
         float wartosc_v2(int wiersz);
 
-        void wyswietl(float u1, float v1, float u2, float v2, float x1, float y1, float x2, float y2);
+        void zapisz_verteks(float u1, float v1, float u2, float v2, float x1, float y1, float x2, float y2);
 
         void napisz_znak(char character, float x1, float y1, float x2, float y2);
 
@@ -52,7 +70,7 @@ class Writing
 
         void kolejna_linia();
 
-       // void rysuj();
+        void rysuj();
 
         void zmien_pozycjonowanie();
 
@@ -66,13 +84,17 @@ class Writing
         void pisz(string text);
 
 
-        Writing(Object* reference_object_pointer_, float z_, float height, float width, float margin_top_, TextureBuffer& texture_buffer_);
+        void koniec();
+
+        void inicjalizuj(float height_, float width_, float margin_top_);
+
+        Writing(Object* reference_object_pointer_, float z_, TextureBuffer& texture_buffer_);
 
 
         Writing(const Writing& writing) = delete;
 
 
-        Writing(Writing&& writing):texturebuffer(writing.texturebuffer)
+        Writing(Writing&& writing):texturebuffer(writing.texturebuffer), verteksy(move(writing.verteksy))
         {
             u_chunk=writing.u_chunk;
             v_chunk=writing.v_chunk;
