@@ -2,13 +2,11 @@
 
 class EntityData
 {
-
-    private:
-
+    public:
+        int l;
         int destination;
         int origin;
         int elevator_number;
-        int l;
 
         enum status_
         {
@@ -17,6 +15,10 @@ class EntityData
         };
 
         status_ status;
+
+    private:
+
+
 
         //METODA USTALAJACA KIERUNEK (u (UP) LUB d (DOWN) NA PODSTAWIE RÓZNICY destination-origin, JESLI DIFFERENCE DODATNIE - u, JESLI DIFFERENCE UJEMNE - d
         char kierunek(int difference);

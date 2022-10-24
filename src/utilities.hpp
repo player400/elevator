@@ -26,15 +26,17 @@
 #include "stb_image.h"
 #include "texture.hpp"
 #include "texturebuffer.hpp"
-
-
-
+#include "objects.hpp"
 
 
 using namespace std;
 
+
 extern vector<ElevatorData>windy;
 extern vector<EntityData>byty;
+
+extern Object* basic;
+extern ShaderProgram* program;
 
 extern int ile_wind;
 extern int ile_bytow;
@@ -55,6 +57,9 @@ extern int backspace_key_state;
 extern int left_mouse_state;
 
 
+//extern TextureBuffer black;
+//extern Object basic;
+
 
 //extern Buffer buffer;
 //FUNKCJA SPRAWDZA CZY STRUKTURA elements ZAWIERA LICZBE needle
@@ -67,14 +72,6 @@ bool czy_zawiera(const T& elements, int needle)
 //FUNKCJA ZATRZYMUJE WYWOLUJACY JA WATEK
 void spij(int time);
 
-//void setCursor(int x, int y)
-//{
-//     COORD c;
-//     c.X = x-1;
-//     c.Y = y-1;
-//     SetConsoleCursorPosition (GetStdHandle (STD_OUTPUT_HANDLE), c);
-//}
-
 //FUNKCJA CZYSCI TERMINAL
 void czyszczenie();
 
@@ -85,6 +82,6 @@ float szerokosc_bezwzgledna(float pixel_width);
 float wysokosc_bezwzgledna(float pixel_height);
 
 //FUNKCJA OTRZYMUJE CYFRE I ZWRACA ZNAK JEJ ODPOWIADAJACY
-char cyfra_na_znak(int number);
+int napis_na_liczbe(string a);
 
 

@@ -49,38 +49,48 @@ float Writing::wartosc_v2(int wiersz)
     return wartosc_v1(wiersz)+v_chunk-0.01;
 }
 
-void Writing::wyswietl(float u1, float v1, float u2, float v2, float x1, float y1, float x2, float y2)
+void Writing::zapisz_verteks(float u1, float v1, float u2, float v2, float x1, float y1, float x2, float y2)
 {
-    texturebuffer.ustaw_vertexy(x1, y1, x2, y2, z, u1, v1, u2, v2);
-//    buffer.vertex(x1, y1, z, 0, 0, 1, u1, v1);
-//    buffer.vertex(x2, y2, z, 0, 1, 0, u2, v2);
-//    buffer.vertex(x1, y2, z, 1, 0, 0, u1, v2);
-//
-//    buffer.vertex(x1, y1, z, 0, 0, 1, u1, v1);
-//    buffer.vertex(x2, y1, z, 1, 0, 0, u2, v1);
-//    buffer.vertex(x2, y2, z, 0, 1, 0, u2, v2);
+    letter_vertex vertex;
 
+    vertex.u1=u1;
+    vertex.v1=v1;
+
+    vertex.u2=u2;
+    vertex.v2=v2;
+
+
+    vertex.x1=x1;
+    vertex.y1=y1;
+
+    vertex.x2=x2;
+    vertex.y2=y2;
+
+    verteksy.push_back(vertex);
 }
 
 void Writing::napisz_znak(char character, float x1, float y1, float x2, float y2)
 {
     int column = kolumna(character);
     int row = wiersz(character);
-    wyswietl(wartosc_u1(column), wartosc_v1(row), wartosc_u2(column), wartosc_v2(row), x1, y1, x2, y2);
+    zapisz_verteks(wartosc_u1(column), wartosc_v1(row), wartosc_u2(column), wartosc_v2(row), x1, y1, x2, y2);
 }
 
 void Writing::kolejna_linia()
 {
     vertical_position=vertical_position+height;
 }
-//
-//void Writing::rysuj()
-//{
-//    buffer.wyslij();
-//    font.bind();
-//    buffer.rysuj();
-//    buffer.czysc();
-//}
+
+void Writing::rysuj()
+{
+    for(auto& verteks : verteksy)
+    {
+         texturebuffer.ustaw_vertexy(verteks.x1, verteks.y1, verteks.x2, verteks.y2, z, verteks.u1, verteks.v1, verteks.u2, verteks.v2);
+    }
+
+    verteksy.clear();
+}
+
 void Writing::nadpisz_z(float z_)
 {
     z=z_;
@@ -145,13 +155,25 @@ void Writing::zmien_rozmiar(float new_height, float new_width)
 }
 
 
-Writing::Writing(Object* reference_object_pointer_, float z_, float height_, float width_, float margin_top_, TextureBuffer& texture_buffer_):texturebuffer(texture_buffer_)
+void Writing::koniec()
 {
     vertical_position=0;
+    pos=CENTER;
+}
 
+
+void Writing::inicjalizuj(float height_, float width_, float margin_top_)
+{
     height=height_;
     width=width_;
     margin_top=margin_top_;
+}
+
+
+Writing::Writing(Object* reference_object_pointer_, float z_, TextureBuffer& texture_buffer_):texturebuffer(texture_buffer_)
+{
+    vertical_position=0;
+
     margin_left=0;
 
     pos=CENTER;

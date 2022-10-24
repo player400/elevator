@@ -4,14 +4,29 @@ using namespace std;
 
 class ElevatorData
 {
-    private:
-        vector<int>polecenia;
-        list<int>przystanki;
+    public:
         int last_floor_number=0;
         int current_destination=0;
         int underway_status=0;
         int cooldown=0;
+
+        enum status_
+        {
+            UP,
+            DOWN,
+            STOP,
+        };
+
+        status_ status=STOP;
+
         int i;
+
+    private:
+        vector<int>polecenia;
+        list<int>przystanki;
+
+
+
 
         enum is_stop_detected_
         {
@@ -22,14 +37,7 @@ class ElevatorData
 
         is_stop_detected_ is_stop_detected=NO_INFO;
 
-        enum status_
-        {
-            UP,
-            DOWN,
-            STOP,
-        };
 
-        status_ status=STOP;
 
         //METODA ZWRACA NAJNIZSZE PIÊTRO Z VECTORA polecenia
         int minimum();
