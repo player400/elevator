@@ -16,6 +16,7 @@ int ElevatorData::maksimum()
     return *std::max_element(polecenia.begin(), polecenia.end());
 }
 
+
 void ElevatorData::dodaj_polecenie(int w)
 {
     polecenia.push_back(w);
@@ -30,15 +31,15 @@ void ElevatorData::dodaj_przystanek(int w)
 
 void ElevatorData::wyswietl()
 {
-    cout<<"Elevator "<<i<<":"<<endl;
-    switch(status)
-    {
-        case UP : {cout<<"underway, using engine"<<endl<<"door closed"<<endl;} break;
-        case DOWN : {cout<<"underway, using gravity"<<endl<<"door closed"<<endl;} break;
-        case STOP : {cout<<"full stop"<<endl<<"door open"<<endl;} break;
-    }
+//    cout<<"Elevator "<<i<<":"<<endl;
+//    switch(status)
+//    {
+//        case UP : {cout<<"underway, using engine"<<endl<<"door closed"<<endl;} break;
+//        case DOWN : {cout<<"underway, using gravity"<<endl<<"door closed"<<endl;} break;
+//        case STOP : {cout<<"full stop"<<endl<<"door open"<<endl;} break;
+//    }
 
-    cout<<last_floor_number<<endl;
+ //   cout<<last_floor_number<<endl;
 //  cout<<current_destination<<endl;
 //  for(int i=0;i<polecenia.size();i++)
 //  {
@@ -49,10 +50,10 @@ void ElevatorData::wyswietl()
         underway_status++;
         for(int j=0;j<underway_status;j++)
         {
-            cout<<".";
+            //cout<<".";
         }
     }
-    cout<<endl<<endl;
+   // cout<<endl<<endl;
 }
 
 
@@ -189,7 +190,7 @@ int ElevatorData::dystans(int w, char direction)
         distance=abs(last_floor_number-polecenia[0]);
     }
 
-    for(int j=0;j<(polecenia.size()-1);j++)
+    for(size_t j=0;j<(polecenia.size()-1);j++)
     {
         if((polecenia[j]<w && polecenia[j+1]>w && direction=='u') || (polecenia[j]>w && polecenia[j+1]<w && direction=='d'))
         {
