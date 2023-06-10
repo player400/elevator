@@ -25,8 +25,8 @@ bool Object::czy_wcisniety()
     if(left_mouse_state==1)
     {
 //        czyszczenie();
-//        cout<<x1<<" "<<cursor_x<<" "<<x2<<endl;
-//        cout<<y2<<" "<<cursor_y<<" "<<y1<<endl;
+        cout<<x1<<" "<<cursor_x<<" "<<x2<<endl;
+        cout<<y2<<" "<<cursor_y<<" "<<y1<<endl;
 //        exit(9);
 
         if(cursor_x>x1 && cursor_x<x2 && cursor_y<y1 && cursor_y>y2)
@@ -61,6 +61,11 @@ void Object::klawisz_wcisniety(int keycode)
     {
         child_object.klawisz_wcisniety(keycode);
     }
+
+    for(auto& popup_window : popup_windows)
+    {
+        popup_window.klawisz_wcisniety(keycode);
+    }
 }
 
 
@@ -69,7 +74,11 @@ void Object::utworz_pole_tekstowe(float height, float width, float margin_top, T
     text_height=height;
     text_width=width;
     text_margin=margin_top;
-    text_input_pointer = new Writing(this, z-0.1, texture_buffer_);
+
+    if(text_input_pointer==nullptr)
+    {
+        text_input_pointer = new Writing(this, z-0.1, texture_buffer_);
+    }
 }
 
 
@@ -153,10 +162,29 @@ void Object::rysuj()
 
     if(is_text_input_active)
     {
+        if(time_since_logic_update<=0.5)
+        {
+            text_input=text_input+'_';
+        }
+        else
+        {
+            text_input=text_input+' ';
+        }
+    }
+
+
+
+    if(text_input.size()>0)
+    {
         text_input_pointer -> inicjalizuj(text_height, text_width, text_margin);
         text_input_pointer -> pisz(text_input);
         text_input_pointer -> koniec();
         text_input_pointer -> rysuj();
+    }
+
+    if(is_text_input_active)
+    {
+        text_input.pop_back();
     }
 
 }

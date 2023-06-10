@@ -18,6 +18,9 @@
 
 volatile bool wstrzymywanie;
 
+bool was_window_resized=false;
+
+
 
 
 void glowna_petla();
@@ -85,6 +88,7 @@ void glowna_petla()
     TextureBuffer white("white.png");
     TextureBuffer black("black.png");
     TextureBuffer white_font("white_font.png");
+    TextureBuffer black_font("black_font.png");
     TextureBuffer up("up.png");
     TextureBuffer down("down.png");
 
@@ -93,7 +97,31 @@ void glowna_petla()
     const float relative_list_width=1.4;
 
     Object* menu = basic->utworz_obiekt(white);
+        Object* call_buttons = menu->utworz_obiekt(black);
+            Writing* call_caption = call_buttons->utworz_tekst(white_font);
+            Object* call_up = call_buttons->utworz_obiekt(up);
+            Object* call_down = call_buttons->utworz_obiekt(down);
+            Object* call_elevator_window = call_buttons->utworz_okienko(white, basic);
+                Writing* call_elevator_window_text = call_elevator_window->utworz_tekst(black_font);
+                Object* call_elevator_textbox = call_elevator_window->utworz_obiekt(black);
+                Writing* call_elevator_window_text2 = call_elevator_window->utworz_tekst(black_font);
+                Object* call_elevator_button_container = call_elevator_window->utworz_obiekt(black);
+                    Object* call_back = call_elevator_button_container->utworz_obiekt(up);
+                    Object* call_confirm = call_elevator_button_container->utworz_obiekt(down);
+
+
         Object* passenger_list = menu->utworz_obiekt(black);
+            Object* create_passenger_button = passenger_list->utworz_obiekt(white);
+                Writing* create_passenger_button_caption = create_passenger_button->utworz_tekst(black_font);
+                Object* passenger_creating_window = create_passenger_button->utworz_okienko(white, basic);
+                    Writing* passenger_creating_window_text1 = passenger_creating_window->utworz_tekst(black_font);
+                    Object* passenger_textbox1 = passenger_creating_window->utworz_obiekt(black);
+                    Writing* passenger_creating_window_text2 = passenger_creating_window->utworz_tekst(black_font);
+                    Object* passenger_textbox2 = passenger_creating_window->utworz_obiekt(black);
+                    Object* passenger_button_container = passenger_creating_window->utworz_obiekt(black);
+                        Object* passenger_back = passenger_button_container->utworz_obiekt(up);
+                        Object* passenger_confirm = passenger_button_container->utworz_obiekt(down);
+
             Writing* passenger_list_caption = passenger_list->utworz_tekst(white_font);
 
             vector<Object*>passengers;
@@ -102,7 +130,12 @@ void glowna_petla()
 
 
     Object* elevator_list = basic->utworz_obiekt(black);
-
+        Object* send_elevator_window = elevator_list->utworz_okienko(white, basic);
+            Writing* send_elevator_window_text = send_elevator_window->utworz_tekst(black_font);
+            Object* send_elevator_textbox = send_elevator_window->utworz_obiekt(black);
+            Object* send_elevator_button_container = send_elevator_window->utworz_obiekt(black);
+                Object* send_back = send_elevator_button_container->utworz_obiekt(up);
+                Object* send_confirm = send_elevator_button_container->utworz_obiekt(down);
         Writing* elevator_list_caption = elevator_list->utworz_tekst(white_font);
 
         Object* elevators[ile_wind];
@@ -128,13 +161,22 @@ void glowna_petla()
 
     wstrzymywanie=false;
 
+    bool lock_main_screen=false;
+        bool create_passenger_window_active=false;
+        bool send_elevator_window_active=false;
+            int selected_elevator=0;
+        bool call_elevator_window_active=false;
+            char direction = 'u';
+
     while(true)
     {
 
+
         double now=winxGetTime();
-        if(now-timer>1&&wstrzymywanie==false)
+        time_since_logic_update=now-timer;
+        if(time_since_logic_update>1&&wstrzymywanie==false)
         {
-            czyszczenie();
+            //czyszczenie();
 
             for(auto& winda : windy)
             {
@@ -171,7 +213,46 @@ void glowna_petla()
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
         menu->inicjalizuj(Object::RIGHT, 0, 0, 2-relative_list_width-szerokosc_bezwzgledna(50), 2);
-            passenger_list->inicjalizuj(Object::CENTER, 0.1, 1.9-wysokosc_bezwzgledna(880), 0.5, wysokosc_bezwzgledna(880));
+            call_buttons->inicjalizuj(Object::CENTER, 0, 0.1 , 0.5, wysokosc_bezwzgledna(0.1*window_width+140));
+                call_caption->inicjalizuj(wysokosc_bezwzgledna(60), szerokosc_bezwzgledna(36), wysokosc_bezwzgledna(20));
+                call_caption->pisz("Call an elevator:");
+                call_caption->koniec();
+                call_down->inicjalizuj(Object::LEFT, szerokosc_bezwzgledna(0.1*window_width), wysokosc_bezwzgledna(110), szerokosc_bezwzgledna(0.1*window_width), wysokosc_bezwzgledna(0.1*window_width));
+                call_up->inicjalizuj(Object::RIGHT, szerokosc_bezwzgledna(0.1*window_width), wysokosc_bezwzgledna(110), szerokosc_bezwzgledna(0.1*window_width), wysokosc_bezwzgledna(0.1*window_width));
+                call_elevator_window->inicjalizuj(Object::CENTER, 0.75, 0.5, 0.5, 1);
+                    call_elevator_window_text->inicjalizuj(wysokosc_bezwzgledna(60), szerokosc_bezwzgledna(36), wysokosc_bezwzgledna(100));
+                    call_elevator_window_text->pisz("Elevator to floor:");
+                    call_elevator_window_text->koniec();
+                    call_elevator_textbox->inicjalizuj(Object::CENTER, 0, wysokosc_bezwzgledna(200), 0.4, wysokosc_bezwzgledna(100));
+                        call_elevator_textbox->utworz_pole_tekstowe(wysokosc_bezwzgledna(60), szerokosc_bezwzgledna(36), wysokosc_bezwzgledna(20), white_font);
+                    call_elevator_window_text2->inicjalizuj(wysokosc_bezwzgledna(60), szerokosc_bezwzgledna(36), wysokosc_bezwzgledna(400));
+                    call_elevator_window_text2->pisz("From there it");
+                    call_elevator_window_text2->pisz("will be going:");
+                    call_elevator_window_text2->zmien_rozmiar(wysokosc_bezwzgledna(70), szerokosc_bezwzgledna(42));
+                    call_elevator_window_text2->pisz(direction=='u' ? "UP" : "DOWN");
+                    call_elevator_window_text2->koniec();
+                    call_elevator_button_container->inicjalizuj(Object::CENTER, 0, 1-wysokosc_bezwzgledna(240), szerokosc_bezwzgledna(100), wysokosc_bezwzgledna(200));
+                        call_back->inicjalizuj(Object::CENTER, 0, wysokosc_bezwzgledna(20), szerokosc_bezwzgledna(70), wysokosc_bezwzgledna(70));
+                        call_confirm->inicjalizuj(Object::CENTER, 0, wysokosc_bezwzgledna(110), szerokosc_bezwzgledna(70), wysokosc_bezwzgledna(70));
+            passenger_list->inicjalizuj(Object::CENTER, 0.1, 1.9-wysokosc_bezwzgledna(980), 0.5, wysokosc_bezwzgledna(980));
+                create_passenger_button->inicjalizuj(Object::CENTER, szerokosc_bezwzgledna(10), wysokosc_bezwzgledna(880), 0.5-szerokosc_bezwzgledna(20), wysokosc_bezwzgledna(90));
+                    passenger_creating_window->inicjalizuj(Object::CENTER, 0.75, 0.5, 0.5, 1);
+                        passenger_creating_window_text1->inicjalizuj(wysokosc_bezwzgledna(60), szerokosc_bezwzgledna(36), wysokosc_bezwzgledna(100));
+                        passenger_creating_window_text1->pisz("Going from:");
+                        passenger_creating_window_text1->koniec();
+                        passenger_textbox1->inicjalizuj(Object::CENTER, 0, wysokosc_bezwzgledna(200), 0.4, wysokosc_bezwzgledna(100));
+                            passenger_textbox1->utworz_pole_tekstowe(wysokosc_bezwzgledna(60), szerokosc_bezwzgledna(36), wysokosc_bezwzgledna(20), white_font);
+                        passenger_creating_window_text2->inicjalizuj(wysokosc_bezwzgledna(60), szerokosc_bezwzgledna(36), wysokosc_bezwzgledna(400));
+                        passenger_creating_window_text2->pisz("to:");
+                        passenger_creating_window_text2->koniec();
+                        passenger_textbox2->inicjalizuj(Object::CENTER, 0, wysokosc_bezwzgledna(500), 0.4, wysokosc_bezwzgledna(100));
+                            passenger_textbox2->utworz_pole_tekstowe(wysokosc_bezwzgledna(60), szerokosc_bezwzgledna(36), wysokosc_bezwzgledna(20), white_font);
+                        passenger_button_container->inicjalizuj(Object::CENTER, 0, 1-wysokosc_bezwzgledna(240), szerokosc_bezwzgledna(100), wysokosc_bezwzgledna(200));
+                            passenger_back->inicjalizuj(Object::CENTER, 0, wysokosc_bezwzgledna(20), szerokosc_bezwzgledna(70), wysokosc_bezwzgledna(70));
+                            passenger_confirm->inicjalizuj(Object::CENTER, 0, wysokosc_bezwzgledna(110), szerokosc_bezwzgledna(70), wysokosc_bezwzgledna(70));
+                    create_passenger_button_caption->inicjalizuj(wysokosc_bezwzgledna(60), szerokosc_bezwzgledna(36), wysokosc_bezwzgledna(15));
+                    create_passenger_button_caption->pisz("Create Passenger");
+                    create_passenger_button_caption->koniec();
                 passenger_list_caption->inicjalizuj(wysokosc_bezwzgledna(60), szerokosc_bezwzgledna(36), wysokosc_bezwzgledna(20));
                 passenger_list_caption->pisz("Passengers:");
                 passenger_list_caption->koniec();
@@ -194,7 +275,7 @@ void glowna_petla()
                 {
                     passenger_description[i]->pisz("STATUS: ONBOARD THE ELEVATOR");
                 }
-                else if(now-timer<0.8)
+                else if(time_since_logic_update<0.8)
                 {
                     passenger_description[i]->pisz("STATUS: WAITING IN THE HALLWAY");
                 }
@@ -203,6 +284,15 @@ void glowna_petla()
 
 
         elevator_list->inicjalizuj(Object::LEFT, 0, 0, relative_list_width, 1.4);
+            send_elevator_window->inicjalizuj(Object::CENTER, 0.75, 0.5, 0.5, 1);
+                        send_elevator_window_text->inicjalizuj(wysokosc_bezwzgledna(60), szerokosc_bezwzgledna(36), wysokosc_bezwzgledna(100));
+                        send_elevator_window_text->pisz("Elevator "+to_string(selected_elevator)+" to floor:");
+                        send_elevator_window_text->koniec();
+                        send_elevator_textbox->inicjalizuj(Object::CENTER, 0, wysokosc_bezwzgledna(200), 0.4, wysokosc_bezwzgledna(100));
+                            send_elevator_textbox->utworz_pole_tekstowe(wysokosc_bezwzgledna(60), szerokosc_bezwzgledna(36), wysokosc_bezwzgledna(20), white_font);
+                        send_elevator_button_container->inicjalizuj(Object::CENTER, 0, 1-wysokosc_bezwzgledna(240), szerokosc_bezwzgledna(100), wysokosc_bezwzgledna(200));
+                            send_back->inicjalizuj(Object::CENTER, 0, wysokosc_bezwzgledna(20), szerokosc_bezwzgledna(70), wysokosc_bezwzgledna(70));
+                            send_confirm->inicjalizuj(Object::CENTER, 0, wysokosc_bezwzgledna(110), szerokosc_bezwzgledna(70), wysokosc_bezwzgledna(70));
             elevator_list_caption->inicjalizuj(wysokosc_bezwzgledna(60), szerokosc_bezwzgledna(36), wysokosc_bezwzgledna(20));
             elevator_list_caption->pisz("Elevators:");
             elevator_list_caption->koniec();
@@ -262,7 +352,7 @@ void glowna_petla()
 
                         if(windy[elevator_counter].status==ElevatorData::STOP)
                         {
-                            if(now-timer<0.9)
+                            if(time_since_logic_update<0.8)
                             {
                                 st="DOOR OPEN";
                             }
@@ -293,6 +383,8 @@ void glowna_petla()
 
                         direction_up[elevator_counter]->inicjalizuj(Object::RIGHT, szerokosc_bezwzgledna(10), wysokosc_bezwzgledna(10), szerokosc_bezwzgledna(40), wysokosc_bezwzgledna(40));
                         direction_down[elevator_counter]->inicjalizuj(Object::RIGHT, szerokosc_bezwzgledna(10), wysokosc_bezwzgledna(10), szerokosc_bezwzgledna(40), wysokosc_bezwzgledna(40));
+                        direction_down[elevator_counter]->nadpisz_z(-0.4);
+                        direction_up[elevator_counter]->nadpisz_z(-0.4);
 
                         if(going_up)
                         {
@@ -303,14 +395,169 @@ void glowna_petla()
                             elevators[elevator_counter]->aktywuj_okienko();
                         }
 
-
                 elevator_counter++;
             }
 
-
-
             elevator_margin_top=elevator_margin_top+250;
         }
+
+
+        if(create_passenger_window_active)
+        {
+            if(passenger_confirm->czy_wcisniety() || enter_key_state&&(!passenger_textbox1->is_text_input_active))
+            {
+                string text1=passenger_textbox1->dezaktywuj_pole_tekstowe();
+                string text2=passenger_textbox2->dezaktywuj_pole_tekstowe();
+
+                int from;
+                int to;
+
+                if(text1.size()==0)
+                {
+                    from=0;
+                }
+                else
+                {
+                    from=napis_na_liczbe(text1);
+                }
+
+                if(text2.size()==0)
+                {
+                    to=0;
+                }
+                else
+                {
+                    to=napis_na_liczbe(text2);
+                }
+
+                int entity_number = 0;
+                while(true)
+                {
+                    bool is_unique = true;
+                    for(int l=0; l<ile_bytow; l++)
+                    {
+                        if(byty[l].l==entity_number)
+                        {
+                            is_unique=false;
+                            entity_number++;
+                        }
+                    }
+                    if(is_unique)
+                    {
+                        break;
+                    }
+                }
+                EntityData pustybyt(from, to, entity_number);
+                byty.push_back(pustybyt);
+                ile_bytow++;
+
+                create_passenger_window_active=false;
+                lock_main_screen=false;
+                create_passenger_button->dezaktywuj_okienko();
+            }
+
+            if(passenger_back->czy_wcisniety())
+            {
+                create_passenger_window_active=false;
+                lock_main_screen=false;
+                create_passenger_button->dezaktywuj_okienko();
+            }
+
+            if(passenger_textbox1->is_text_input_active)
+            {
+                if(enter_key_state)
+                {
+                        passenger_textbox2->aktywuj_pole_tekstowe();
+                        passenger_textbox1->dezaktywuj_pole_tekstowe();
+                }
+            }
+
+            if(passenger_textbox1->czy_wcisniety())
+            {
+                passenger_textbox1->aktywuj_pole_tekstowe();
+                passenger_textbox2->dezaktywuj_pole_tekstowe();
+            }
+
+            if(passenger_textbox2->czy_wcisniety())
+            {
+                passenger_textbox2->aktywuj_pole_tekstowe();
+                passenger_textbox1->dezaktywuj_pole_tekstowe();
+            }
+        }
+        if(send_elevator_window_active)
+        {
+            if(send_confirm->czy_wcisniety() || enter_key_state)
+            {
+                string send_text=send_elevator_textbox->dezaktywuj_pole_tekstowe();
+                elevator_list->dezaktywuj_okienko();
+                lock_main_screen=false;
+                send_elevator_window_active=false;
+                wywolaj_winde(selected_elevator, napis_na_liczbe(send_text), 'u');
+            }
+            if(send_back->czy_wcisniety())
+            {
+                send_elevator_textbox->dezaktywuj_pole_tekstowe();
+                elevator_list->dezaktywuj_okienko();
+                lock_main_screen=false;
+                send_elevator_window_active=false;
+            }
+        }
+        if(call_elevator_window_active)
+        {
+            if(call_confirm->czy_wcisniety() || enter_key_state)
+            {
+                string call_text=call_elevator_textbox->dezaktywuj_pole_tekstowe();
+                call_buttons->dezaktywuj_okienko();
+                lock_main_screen=false;
+                call_elevator_window_active=false;
+                wywolaj_winde(-1, napis_na_liczbe(call_text), direction);
+            }
+            if(send_back->czy_wcisniety())
+            {
+                call_elevator_textbox->dezaktywuj_pole_tekstowe();
+                call_buttons->dezaktywuj_okienko();
+                lock_main_screen=false;
+                call_elevator_window_active=false;
+            }
+        }
+        if(!lock_main_screen)
+        {
+            if(create_passenger_button->czy_wcisniety())
+            {
+                create_passenger_button->aktywuj_okienko();
+                create_passenger_window_active=true;
+                lock_main_screen=true;
+                passenger_textbox1->aktywuj_pole_tekstowe();
+            }
+            for(int i=0; i<ile_wind; i++)
+            {
+                if(elevators[i]->czy_wcisniety())
+                {
+                    elevator_list->aktywuj_okienko();
+                    selected_elevator=i;
+                    send_elevator_window_active=true;
+                    lock_main_screen=true;
+                    send_elevator_textbox->aktywuj_pole_tekstowe();
+                }
+            }
+            if(call_up->czy_wcisniety())
+            {
+                    call_buttons->aktywuj_okienko();
+                    direction='u';
+                    call_elevator_window_active=true;
+                    lock_main_screen=true;
+                    call_elevator_textbox->aktywuj_pole_tekstowe();
+            }
+            if(call_down->czy_wcisniety())
+            {
+                    call_buttons->aktywuj_okienko();
+                    direction='d';
+                    call_elevator_window_active=true;
+                    lock_main_screen=true;
+                    call_elevator_textbox->aktywuj_pole_tekstowe();
+            }
+        }
+
 
 
         basic -> rysuj();
@@ -320,6 +567,7 @@ void glowna_petla()
         white_font.rysuj();
         up.rysuj();
         down.rysuj();
+        black_font.rysuj();
 
 
         winxSwapBuffers();
@@ -327,7 +575,6 @@ void glowna_petla()
 
     }
 }
-
 
 int menu()
 {
@@ -346,8 +593,6 @@ int menu()
             Writing* sandbox_mode_button_text = sandbox_mode_button->utworz_tekst(black_font);
         Object* down_sign = menu_div->utworz_obiekt(down);
         Object* up_sign = menu_div->utworz_obiekt(up);
-            Object* test_window = up_sign->utworz_okienko(white, basic);
-                Object* inside_window = test_window->utworz_obiekt(black);
 
 
 
@@ -370,8 +615,6 @@ int menu()
         menu_div->inicjalizuj(Object::CENTER, 0, 1 - wysokosc_bezwzgledna(50), 2, wysokosc_bezwzgledna(100));
             down_sign->inicjalizuj(Object::LEFT, 0, 0, szerokosc_bezwzgledna(100), wysokosc_bezwzgledna(100));
             up_sign->inicjalizuj(Object::RIGHT, 0, 0, szerokosc_bezwzgledna(100), wysokosc_bezwzgledna(100));
-                test_window->inicjalizuj(Object::CENTER, 0, 0.5, 1, 1);
-                    inside_window->inicjalizuj(Object::CENTER, 0, 0.25, 0.5, 0.5);
 
             sandbox_mode_button->inicjalizuj(Object::CENTER, 0, 0, szerokosc_bezwzgledna(700), wysokosc_bezwzgledna(100));
                 sandbox_mode_button_text->inicjalizuj(wysokosc_bezwzgledna(50), szerokosc_bezwzgledna(30), wysokosc_bezwzgledna(25));
@@ -383,11 +626,6 @@ int menu()
         if(sandbox_mode_button->czy_wcisniety())
         {
             return 1;
-        }
-
-        if(up_sign->czy_wcisniety())
-        {
-            up_sign->aktywuj_okienko();
         }
 
 
@@ -430,9 +668,16 @@ int wybor_ilosci_wind()
     Object* start_button = basic->utworz_obiekt(down);
     Object* return_button = basic->utworz_obiekt(up);
 
+    double timer=0;
+
     while(true)
     {
-
+        double now=winxGetTime();
+        time_since_logic_update=now-timer;
+        if(time_since_logic_update>1&&wstrzymywanie==false)
+        {
+            timer=now;
+        }
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
         if(window_height>800)
@@ -530,7 +775,7 @@ void sterowanie()
                 continue;
             }
 
-            char direction;
+            char direction='u';
 
             if(elevator_number==-1)
             {
@@ -571,6 +816,7 @@ void otworz_okno(int width, int height)
     });
 
 	winxSetResizeEventHandle([](int w, int h){
+        was_window_resized=true;
         window_width=w;
         window_height=h;
         glViewport(0, 0, w, h);
@@ -588,15 +834,24 @@ void otworz_okno(int width, int height)
     });
 
     winxSetCursorEventHandle([](int x, int y){
+        czyszczenie();
+//        cout<<window_width<<" "<<window_height<<endl;
+//        cout<<x<<" "<<y<<endl;
+        if(!was_window_resized)
+        {
         y=y+((float)y/(window_height-42))*42;
         x=x+((float)x/(window_width-17))*17;
-
+        }
+//        cout<<x<<" "<<y<<endl;
         x=x-window_width/2;
         y=y-window_height/2;
         y=y*(-1);
-
+//        cout<<x<<" "<<y<<endl;
         cursor_x=szerokosc_bezwzgledna(x)*2;
         cursor_y=wysokosc_bezwzgledna(y)*2;
+
+
+//        cout<<cursor_x<<" "<<cursor_y<<endl;
     });
 
     winxSetButtonEventHandle([](int state, int button){
@@ -652,5 +907,4 @@ void uruchom_opengl()
     glCullFace(GL_FRONT);
     glClearColor(0, 0, 0, 1);
 }
-
 

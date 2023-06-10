@@ -31,15 +31,15 @@ void ElevatorData::dodaj_przystanek(int w)
 
 void ElevatorData::wyswietl()
 {
-    cout<<"Elevator "<<i<<":"<<endl;
-    switch(status)
-    {
-        case UP : {cout<<"underway, using engine"<<endl<<"door closed"<<endl;} break;
-        case DOWN : {cout<<"underway, using gravity"<<endl<<"door closed"<<endl;} break;
-        case STOP : {cout<<"full stop"<<endl<<"door open"<<endl;} break;
-    }
+//    cout<<"Elevator "<<i<<":"<<endl;
+//    switch(status)
+//    {
+//        case UP : {cout<<"underway, using engine"<<endl<<"door closed"<<endl;} break;
+//        case DOWN : {cout<<"underway, using gravity"<<endl<<"door closed"<<endl;} break;
+//        case STOP : {cout<<"full stop"<<endl<<"door open"<<endl;} break;
+//    }
 
-    cout<<last_floor_number<<endl;
+ //   cout<<last_floor_number<<endl;
 //  cout<<current_destination<<endl;
 //  for(int i=0;i<polecenia.size();i++)
 //  {
@@ -50,10 +50,10 @@ void ElevatorData::wyswietl()
         underway_status++;
         for(int j=0;j<underway_status;j++)
         {
-            cout<<".";
+            //cout<<".";
         }
     }
-    cout<<endl<<endl;
+   // cout<<endl<<endl;
 }
 
 

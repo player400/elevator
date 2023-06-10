@@ -56,6 +56,7 @@ extern int backspace_key_state;
 
 extern int left_mouse_state;
 
+extern float time_since_logic_update;
 
 //extern TextureBuffer black;
 //extern Object basic;

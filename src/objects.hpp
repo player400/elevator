@@ -23,8 +23,10 @@ class Object
 
         float z;
 
-        Writing* text_input_pointer;
+        Writing* text_input_pointer=nullptr;
+    public:
         bool is_text_input_active=false;
+    private:
         string text_input="";
         float text_height;
         float text_width;

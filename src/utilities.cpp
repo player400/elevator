@@ -20,6 +20,8 @@ int enter_key_state;
 int backspace_key_state;
 int left_mouse_state;
 
+float time_since_logic_update=0;
+
 
 
 void spij(int time)
